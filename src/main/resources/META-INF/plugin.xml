@@ -1,0 +1,30 @@
+<idea-plugin>
+    <id>Smart Align Plugin</id>
+    <name>Smart-align</name>
+    <vendor email="tty.niwa@gmail.com" url="http://niwatty.com">niwatty</vendor>
+
+    <description><![CDATA[
+    This is my first plugin.<br>
+    <em>html tag test hoge hoge hoge</em>
+    ]]></description>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <projectConfigurable groupId="tools" displayName="Smart Align Plugin"
+                                 id="preferences.SmartAlignConfigurable"
+                                 instance="com.niwatty.intellij.plugin.align.settings.SmartAlignConfigurable"/>
+        <projectService id="pluginState"
+                            serviceImplementation="com.niwatty.intellij.plugin.align.settings.PluginConfig"/>
+    </extensions>
+
+    <actions>
+        <action id="code.align" class="com.niwatty.intellij.plugin.align.CodeAlignerAction" text="Smart-Align"
+                description="Align your code">
+            <add-to-group group-id="CodeFormatGroup" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt I"/>
+        </action>
+    </actions>
+</idea-plugin>
