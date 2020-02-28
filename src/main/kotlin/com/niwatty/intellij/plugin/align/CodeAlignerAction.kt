@@ -19,7 +19,7 @@ class CodeAlignerAction : AnAction() {
 
         val document = editor.document
         val selection = editor.selectionModel
-        val currentLine = editor.caretModel.visualPosition.line
+        val currentLine = editor.caretModel.logicalPosition.line
         val selectedText = selection.selectedText
         val autoAlignedText: String?
         val startOffset: Int
@@ -30,7 +30,7 @@ class CodeAlignerAction : AnAction() {
 //            startOffset = selection.selectionStart
 //            endOffset = selection.selectionEnd
 //        } else { // auto-align surrounding caret
-            autoAlignedText = TokenAligner.align(document.text, currentLine)
+            autoAlignedText = Aligner.align(document.text, currentLine)
             startOffset = 0
             endOffset = document.textLength
 //        }

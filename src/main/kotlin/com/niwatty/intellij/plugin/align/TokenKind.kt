@@ -129,7 +129,7 @@ class LineRange(var start: Int, var lines: MutableList<Line>) {
     }
 }
 
-object TokenAligner {
+object Aligner {
     fun align(text: String, anchor: Int): String {
         val alignTargetTokens = listOf(TokenType.Comma, TokenType.Colon, TokenType.Arrow, TokenType.Assign)
 

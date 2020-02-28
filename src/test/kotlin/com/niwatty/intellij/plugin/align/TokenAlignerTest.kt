@@ -8,7 +8,7 @@ object TokenAlignerSpec : Spek({
     group(".align(input)") {
 
         fun assertAlignEquals(input: String, lineNum: Int, expected: String) {
-            val actual = TokenAligner.align(input, lineNum)
+            val actual = Aligner.align(input, lineNum)
             assertThat(actual).isEqualTo(expected)
         }
 
