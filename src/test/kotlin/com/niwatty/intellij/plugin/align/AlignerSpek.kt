@@ -3,7 +3,7 @@ package com.niwatty.intellij.plugin.align
 import org.assertj.core.api.Assertions.assertThat
 import org.spekframework.spek2.Spek
 
-object TokenAlignerSpec : Spek({
+object AlignSpek : Spek({
 
     group(".align(input)") {
 
@@ -188,13 +188,15 @@ object TokenAlignerSpec : Spek({
 
             test("only align line which has common token") {
                 val input: String = """
-                    let defaultParam = DiscoverListDC.create({
-                      title      : title,
+                    listOf(1,2,3)
+                    let defaultParam=DiscoverListDC.create({
+                      title:title,
                     });
                 """.trimIndent()
                 val expected: String = """
+                    listOf(1,2,3)
                     let defaultParam = DiscoverListDC.create({
-                      title: title,
+                      title:title,
                     });
                 """.trimIndent()
                 assertAlignEquals(input, 1, expected)
@@ -229,7 +231,7 @@ object TokenAlignerSpec : Spek({
                 assertAlignEquals(input, 1, expected)
             }
 
-            test("uses first index of delimiter for auto alignment") {
+            test("align at first index of delimiter") {
                 val input: String = """
                     {
                     hello: '(something=cool())'
@@ -290,7 +292,7 @@ object TokenAlignerSpec : Spek({
 
             test("contains '=>' function syntax") {
                 val text: String = """
-                      some.then((response) => {
+                      some.then((response)=>{
                         let data = response.data;
                 """.trimIndent()
                 assertNotAlign(text, 0)
@@ -298,7 +300,7 @@ object TokenAlignerSpec : Spek({
 
             test("contains '->' function syntax") {
                 val text: String = """
-                      some.then((response) -> {
+                      some.then((response)->{
                         let data = response.data;
                 """.trimIndent()
                 assertNotAlign(text, 0)
@@ -309,39 +311,37 @@ object TokenAlignerSpec : Spek({
                     switch (true) {
                       case false:
                         return null;
-                      default:
-                        return null;
                     }
                 """.trimIndent()
                 assertNotAlign(text, 1)
             }
+        }
 
-            group("token in string literal") {
-                test("ignore first colon in quote") {
-                    val input: String = """
+        group("token in string literal") {
+            test("ignore first colon in quote") {
+                val input: String = """
                     mp('my,key', 'my,other')
                     mp('my,other', 'my,other')
                 """.trimIndent()
-                    val expected: String = """
+                val expected: String = """
                     mp('my,key'  , 'my,other')
                     mp('my,other', 'my,other')
                 """.trimIndent()
 
-                    assertAlignEquals(input, 0, expected)
-                }
+                assertAlignEquals(input, 0, expected)
+            }
 
-                test("ignore lines that have assignment in opened quotes") {
-                    val input: String = """
+            test("ignore lines that have assignment in opened quotes") {
+                val input: String = """
                     mp("my=other
                     var mpItem = {
                 """.trimIndent()
-                    val expected: String = """
+                val expected: String = """
                     mp("my=other
                     var mpItem = {
                 """.trimIndent()
 
-                    assertAlignEquals(input, 0, expected)
-                }
+                assertAlignEquals(input, 0, expected)
             }
         }
     }

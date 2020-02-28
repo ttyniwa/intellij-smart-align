@@ -1,6 +1,6 @@
 package com.niwatty.intellij.plugin.align
 
-class Line(var tokens: List<Token>) {
+data class Line(var tokens: List<Token>) {
 
     /**
      * Trim spaces around the specified [tokenTypes]

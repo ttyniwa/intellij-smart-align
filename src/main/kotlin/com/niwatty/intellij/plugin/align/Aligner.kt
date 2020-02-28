@@ -4,7 +4,7 @@ import java.lang.IllegalArgumentException
 
 object Aligner {
     fun align(text: String, anchor: Int): String {
-        val alignTargetTokens = listOf(TokenType.Comma, TokenType.Colon, TokenType.Arrow, TokenType.Assign)
+        val alignTargetTokens = listOf(TokenType.Comma, TokenType.Colon, TokenType.Assign)
         val tokenLexers: List<TokenLexer> = listOf(
                 SimpleTokenLexer("+=", TokenType.Assign),
                 SimpleTokenLexer("-=", TokenType.Assign),
@@ -19,10 +19,10 @@ object Aligner {
                 SimpleTokenLexer("::", TokenType.Operator),
                 SimpleTokenLexer(":", TokenType.Colon),
                 SimpleTokenLexer(",", TokenType.Comma),
-                StringTokenLexer("'", TokenType.StringLiteral),
-                StringTokenLexer("\"", TokenType.StringLiteral),
-                OneLineCommentTokenLexer("//", TokenType.OneLineComment),
-                MultiLineCommentTokenLexer("/*", "*/", TokenType.MultiLineComment)
+                StringTokenLexer("'"),
+                StringTokenLexer("\""),
+                OneLineCommentTokenLexer("//"),
+                MultiLineCommentTokenLexer("/*", "*/")
         )
 
         val lineSeparator = findLineSeparator(text)
