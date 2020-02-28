@@ -28,7 +28,6 @@ dependencies {
     testCompile("org.assertj:assertj-core:3.15.0")
     testCompile("org.spekframework.spek2:spek-dsl-jvm:$spekVersion")
     testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:$spekVersion")
-    testRuntimeOnly("org.jetbrains.kotlin:kotlin-reflect")
 }
 
 tasks.test {

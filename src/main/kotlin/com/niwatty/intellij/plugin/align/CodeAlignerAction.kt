@@ -18,9 +18,7 @@ class CodeAlignerAction : AnAction() {
         }
 
         val document = editor.document
-        val selection = editor.selectionModel
         val currentLine = editor.caretModel.logicalPosition.line
-        val selectedText = selection.selectedText
         val autoAlignedText: String?
         val startOffset: Int
         val endOffset: Int
