@@ -1,4 +1,3 @@
-// 参考: https://github.com/kropp/intellij-makefile/blob/master/build.gradle.kts
 plugins {
     java
     kotlin("jvm") version "1.3.61"
