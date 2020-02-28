@@ -78,13 +78,20 @@ object Lexer {
 }
 
 class Line(var tokens: List<Token>) {
-    fun getAlignTokens(): List<Token> {
-        return tokens.filter {
-            listOf(TokenType.Assign, TokenType.Arrow, TokenType.Comma, TokenType.Colon).contains(it.type)
-        }
+
+    /**
+     * Returns the set of TokenTypes that intersect of [tokenTypes] and  TokenTypes in this Line
+     */
+    fun intersect(tokenTypes: List<TokenType>): Set<TokenType> {
+        return tokens.map { it.type }.intersect(tokenTypes)
     }
 
-    fun indexOfToken(tokenTypes: List<TokenType>, startIndex: Int): Int {
+    /**
+     * Returns the index within this Line of the first occurrence of the specified TokenType, starting from the specified [startIndex].
+     *
+     * @return An index of the first occurrence of any [tokenTypes] or -1 if none is found.
+     */
+    fun indexOf(tokenTypes: List<TokenType>, startIndex: Int): Int {
         (startIndex until tokens.size).forEach { i ->
             if (tokenTypes.contains(tokens[i].type)) {
                 return i
@@ -104,10 +111,13 @@ class Line(var tokens: List<Token>) {
     }
 }
 
-class Lines(var start: Int, var end: Int, var lines: MutableList<Line>) {
+class LineRange(var start: Int, var lines: MutableList<Line>) {
+
+    val end: Int
+        get() = start + lines.size - 1
 
     val size: Int
-        get() = end - start + 1
+        get() = lines.size
 
     fun addHead(line: Line) {
         lines.add(0, line)
@@ -116,17 +126,18 @@ class Lines(var start: Int, var end: Int, var lines: MutableList<Line>) {
 
     fun addTail(line: Line) {
         lines.add(line)
-        end++
     }
 }
 
 object TokenAligner {
     fun align(text: String, anchor: Int): String {
+        val alignTargetTokens = listOf(TokenType.Comma, TokenType.Colon, TokenType.Arrow, TokenType.Assign)
+
         val lineSeparator = findLineSeparator(text)
         val rawLines = text.split(lineSeparator)
 
-        val alignLines = detectAlignLines(rawLines, anchor)
-        val formattedLines = align(alignLines)
+        val alignLines = detectAlignLines(rawLines, anchor, alignTargetTokens)
+        val formattedLines = align(alignLines, alignTargetTokens)
 
         return listOf(
                 rawLines.subList(0, alignLines.start),
@@ -137,12 +148,11 @@ object TokenAligner {
                 .joinToString(lineSeparator)
     }
 
-    private fun align(lines: Lines): Array<String> {
-        val alignTargetTokens = listOf(TokenType.Comma, TokenType.Colon, TokenType.Arrow, TokenType.Assign)
+    private fun align(lineRange: LineRange, alignTargetTokens: List<TokenType>): Array<String> {
 
         //
         // Remove whitespace surrounding operator
-        lines.lines.forEach { line ->
+        lineRange.lines.forEach { line ->
             (1 until line.tokens.size).forEach { i ->
                 if (alignTargetTokens.contains(line.tokens[i].type)) {
                     line.tokens[i - 1].text = line.tokens[i - 1].text.trimEnd()
@@ -157,11 +167,11 @@ object TokenAligner {
         // Align
 
         // align済み文字列
-        val resultLines = Array(lines.size) { "" }
+        val resultLines = Array(lineRange.size) { "" }
         // align済みトークンの最終index
-        val alignedTokenIndexes = IntArray(lines.size) { -1 }
+        val alignedTokenIndexes = IntArray(lineRange.size) { -1 }
         // 完了済みかどうか
-        val isCompleted = BooleanArray(lines.size) { false }
+        val isCompleted = BooleanArray(lineRange.size) { false }
         do {
             var didProcess = false
 
@@ -169,12 +179,12 @@ object TokenAligner {
             // align対象のトークンより前の文字列をresultに結合する
 
             // align対象のトークンのindex
-            val alignTokenIndexes = IntArray(lines.size) { 0 }
-            (0 until lines.size).forEach { i ->
+            val alignTokenIndexes = IntArray(lineRange.size) { 0 }
+            (0 until lineRange.size).forEach { i ->
                 if (isCompleted[i]) return@forEach
 
-                val line = lines.lines[i]
-                alignTokenIndexes[i] = line.indexOfToken(alignTargetTokens, alignedTokenIndexes[i] + 1)
+                val line = lineRange.lines[i]
+                alignTokenIndexes[i] = line.indexOf(alignTargetTokens, alignedTokenIndexes[i] + 1)
 
                 if (alignTokenIndexes[i] > 0) {
                     resultLines[i] += line.getRawTextBetween(alignedTokenIndexes[i] + 1, alignTokenIndexes[i])
@@ -192,10 +202,10 @@ object TokenAligner {
 
             //
             // align sign
-            (0 until lines.size).forEach { i ->
+            (0 until lineRange.size).forEach { i ->
                 if (isCompleted[i]) return@forEach
 
-                val line = lines.lines[i]
+                val line = lineRange.lines[i]
                 val paddingNum = furthestLength - resultLines[i].length
 
                 val alignTargetToken = line.tokens[alignTokenIndexes[i]]
@@ -208,12 +218,12 @@ object TokenAligner {
                         resultLines[i] += " "
                     }
                 } else if (alignTargetToken.type == TokenType.Comma || alignTargetToken.type == TokenType.Colon) {
-                    resultLines[i] += " ".repeat(paddingNum) + alignTargetToken.text
                     // 末尾トークンなら処理終了
                     if (alignTokenIndexes[i] == line.tokens.size - 1) {
+                        resultLines[i] += alignTargetToken.text
                         isCompleted[i] = true
                     } else {
-                        resultLines[i] += " "
+                        resultLines[i] += " ".repeat(paddingNum) + alignTargetToken.text + " "
                     }
                 } else {
                     throw IllegalArgumentException("Not supported token type to align. " + alignTargetToken.type)
@@ -227,10 +237,10 @@ object TokenAligner {
         return resultLines
     }
 
-    private fun detectAlignLines(rawLines: List<String>, anchor: Int): Lines {
+    private fun detectAlignLines(rawLines: List<String>, anchor: Int, alignTargetTokens: List<TokenType>): LineRange {
         val anchorLine = Line(Lexer.tokenize(rawLines[anchor]))
-        val lines = Lines(anchor, anchor, mutableListOf(anchorLine))
-        var commonTokens = anchorLine.getAlignTokens().map { it.type }.toMutableSet()
+        val lines = LineRange(anchor, mutableListOf(anchorLine))
+        var commonTokens = anchorLine.intersect(alignTargetTokens)
 
         for (i in anchor - 1 downTo 0) {
             //            if (lines[i].shouldIgnoreLine()) {
@@ -239,7 +249,7 @@ object TokenAligner {
             val line = Line(Lexer.tokenize(rawLines[i]))
             // copy commonTokens
             val ct = commonTokens.toMutableSet()
-            ct.retainAll(line.getAlignTokens().map { it.type })
+            ct.retainAll(line.intersect(alignTargetTokens))
             if (ct.isEmpty()) {
                 break
             }
@@ -252,7 +262,7 @@ object TokenAligner {
             val line = Line(Lexer.tokenize(rawLines[i]))
             // copy commonTokens
             val ct = commonTokens.toMutableSet()
-            ct.retainAll(line.getAlignTokens().map { it.type })
+            ct.retainAll(line.intersect(alignTargetTokens))
             if (ct.isEmpty()) {
                 break
             }
