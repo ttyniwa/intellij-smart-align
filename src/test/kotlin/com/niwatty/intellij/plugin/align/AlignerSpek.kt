@@ -312,18 +312,18 @@ object AlignSpek : Spek({
                 }
             }
 
-//            test("align comments in same column") {
-//                val input = """
-//                    var index = 0; // comment1
-//                    j = 1000; // comment2
-//                """.trimIndent()
-//                val expected = """
-//                    var index = 0;    // comment1
-//                    j         = 1000; // comment2
-//                """.trimIndent()
-//
-//                assertAlignEquals(input, 0, expected)
-//            }
+            test("align comments in same column") {
+                val input = """
+                    var index = 0; // comment1
+                    j = 1000; // comment2
+                """.trimIndent()
+                val expected = """
+                    var index = 0;    // comment1
+                    j         = 1000; // comment2
+                """.trimIndent()
+
+                assertAlignEquals(input, 0, expected)
+            }
         }
     }
 })

@@ -2,9 +2,23 @@ package com.niwatty.intellij.plugin.align
 
 import java.lang.IllegalArgumentException
 
+class ResultLines(lineSize: Int) {
+    private val lines = Array(lineSize) { "" }
+
+    operator fun get(index: Int) = lines[index]
+
+    operator fun set(index: Int, value: String) {
+        lines[index] = value
+    }
+
+    fun toList() = lines.toList()
+
+    fun findFurthestLength() = lines.map { it.length }.max()!!
+}
+
 object Aligner {
     fun align(text: String, anchor: Int): String {
-        val alignTargetTokens = listOf(TokenType.Comma, TokenType.Colon, TokenType.Assign)
+        val alignTargetTokens = listOf(TokenType.Comma, TokenType.Colon, TokenType.Assign, TokenType.OneLineComment)
         val tokenLexers: List<TokenLexer> = listOf(
                 SimpleTokenLexer("+=", TokenType.Assign),
                 SimpleTokenLexer("-=", TokenType.Assign),
@@ -40,7 +54,7 @@ object Aligner {
                 .joinToString(lineSeparator)
     }
 
-    private fun align(lineRange: LineRange, alignTargetTokens: List<TokenType>): Array<String> {
+    private fun align(lineRange: LineRange, alignTargetTokens: List<TokenType>): ResultLines {
 
         //
         // Remove whitespace around [alignTargetTokens]
@@ -48,9 +62,9 @@ object Aligner {
 
         //
         // Align
-        val resultLines = Array(lineRange.size) { "" }
+        val resultLines = ResultLines(lineRange.size)
         val alignedTokenIndexes = IntArray(lineRange.size) { -1 }
-        val isCompleted = BooleanArray(lineRange.size) { false }
+        val isCodeAlignCompleted = BooleanArray(lineRange.size) { false }
 
         // Loop for each token to be aligned.
         do {
@@ -60,27 +74,32 @@ object Aligner {
             // Joins the string before the token to be aligned to [resultLines].
             val alignTokenIndexes = IntArray(lineRange.size) { 0 }
             (0 until lineRange.size).forEach { i ->
-                if (isCompleted[i]) return@forEach
+                if (isCodeAlignCompleted[i]) return@forEach
 
                 val line = lineRange.lines[i]
                 alignTokenIndexes[i] = line.indexOf(alignTargetTokens, alignedTokenIndexes[i] + 1)
 
-                if (alignTokenIndexes[i] > 0) { // token found.
+                if (alignTokenIndexes[i] >= 0) { // token found.
                     resultLines[i] += line.getRawTextBetween(alignedTokenIndexes[i] + 1, alignTokenIndexes[i])
+                    if (line.tokens[alignTokenIndexes[i]].type == TokenType.OneLineComment) {
+                        isCodeAlignCompleted[i] = true
+                    }
+                    alignedTokenIndexes[i] = alignTokenIndexes[i] - 1
                 } else if (alignTokenIndexes[i] == -1) { // token not found.
                     resultLines[i] += line.getRawTextBetween(alignedTokenIndexes[i] + 1, line.tokens.size)
-                    isCompleted[i] = true
+                    isCodeAlignCompleted[i] = true
+                    alignedTokenIndexes[i] = line.tokens.size - 1
                 }
             }
 
             //
             // find furthest line length
-            val furthestLength = resultLines.map { it.length }.max()!!
+            val furthestLength = resultLines.findFurthestLength()
 
             //
             // align token
             (0 until lineRange.size).forEach { i ->
-                if (isCompleted[i]) return@forEach
+                if (isCodeAlignCompleted[i]) return@forEach
 
                 val line = lineRange.lines[i]
                 val paddingNum = furthestLength - resultLines[i].length
@@ -90,7 +109,7 @@ object Aligner {
                     resultLines[i] += " ".repeat(paddingNum) + " " + alignTargetToken.text
 
                     if (alignTokenIndexes[i] == line.tokens.size - 1) {
-                        isCompleted[i] = true
+                        isCodeAlignCompleted[i] = true
                     } else {
                         resultLines[i] += " "
                     }
@@ -98,7 +117,7 @@ object Aligner {
 
                     if (alignTokenIndexes[i] == line.tokens.size - 1) {
                         resultLines[i] += alignTargetToken.text
-                        isCompleted[i] = true
+                        isCodeAlignCompleted[i] = true
                     } else {
                         resultLines[i] += " ".repeat(paddingNum) + alignTargetToken.text + " "
                     }
@@ -110,6 +129,20 @@ object Aligner {
                 didProcess = true
             }
         } while (didProcess)
+
+        //
+        // align one line comment.
+        val furthestLength = resultLines.findFurthestLength()
+        lineRange.lines.forEachIndexed { i, line ->
+            if (alignedTokenIndexes[i] + 1 >= line.tokens.size) return@forEachIndexed
+
+            val paddingNum = furthestLength - resultLines[i].length
+            val comment = line.tokens[alignedTokenIndexes[i] + 1].text
+            if (alignedTokenIndexes[i] + 1 != 0) {
+                resultLines[i] += " "
+            }
+            resultLines[i] += " ".repeat(paddingNum) + comment
+        }
 
         return resultLines
     }
