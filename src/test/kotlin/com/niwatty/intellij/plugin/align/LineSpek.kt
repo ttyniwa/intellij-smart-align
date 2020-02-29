@@ -8,6 +8,7 @@ object LineSpek : Spek({
     group(".trim()") {
         val data = listOf(
                 // space around token.
+                // @formatter:off
                 Pair(listOf(
                         Token(TokenType.Other, " space "),
                         Token(TokenType.Assign, "="),
@@ -53,6 +54,7 @@ object LineSpek : Spek({
                         Token(TokenType.Assign, "="),
                         Token(TokenType.Other, "space ")
                 ))
+                // @formatter:on
         )
 
         data.forEach {
@@ -68,6 +70,7 @@ object LineSpek : Spek({
 
     group(".intersect()") {
         val data = listOf(
+                // @formatter:off
                 Triple(listOf(
                         Token(TokenType.Other, ""),
                         Token(TokenType.Assign, ""),
@@ -93,6 +96,7 @@ object LineSpek : Spek({
                 ),
                         setOf()
                 )
+                // @formatter:on
         )
 
         data.forEach {
@@ -110,6 +114,7 @@ object LineSpek : Spek({
         data class Data(val tokens: List<Token>, val findTokenTypes: List<TokenType>, val startIndex: Int, val expected: Int)
 
         val data = listOf(
+                // @formatter:off
                 Data(
                         listOf(
                                 Token(TokenType.Other, ""),
@@ -161,7 +166,8 @@ object LineSpek : Spek({
                         1,
                         -1
                 )
-                )
+                // @formatter:on
+        )
 
         data.forEach {
             val input = Line(it.tokens)
