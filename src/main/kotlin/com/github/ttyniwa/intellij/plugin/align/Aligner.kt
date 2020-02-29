@@ -1,4 +1,4 @@
-package com.niwatty.intellij.plugin.align
+package com.github.ttyniwa.intellij.plugin.align
 
 import java.lang.IllegalArgumentException
 

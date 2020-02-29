@@ -1,4 +1,4 @@
-package com.niwatty.intellij.plugin.align.settings
+package com.github.ttyniwa.intellij.plugin.align.settings
 
 import com.bennyhuo.kotlin.deepcopy.annotations.DeepCopy
 import com.intellij.openapi.components.PersistentStateComponent

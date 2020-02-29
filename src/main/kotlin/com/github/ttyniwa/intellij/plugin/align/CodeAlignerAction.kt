@@ -1,4 +1,4 @@
-package com.niwatty.intellij.plugin.align
+package com.github.ttyniwa.intellij.plugin.align
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent

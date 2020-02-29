@@ -5,7 +5,7 @@ plugins {
     id("org.jetbrains.intellij") version "0.4.16"
 }
 
-group = "com.niwatty"
+group = "com.github.ttyniwa"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -29,16 +29,6 @@ dependencies {
     testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:$spekVersion")
 }
 
-tasks.processResources {
-    expand(project.properties)
-}
-
-tasks.test {
-    useJUnitPlatform {
-        includeEngines("spek2")
-    }
-}
-
 configure<JavaPluginConvention> {
     sourceCompatibility = JavaVersion.VERSION_1_8
 }
@@ -50,14 +40,18 @@ tasks {
     compileTestKotlin {
         kotlinOptions.jvmTarget = "1.8"
     }
+    test {
+        useJUnitPlatform {
+            includeEngines("spek2")
+        }
+    }
+    patchPluginXml {
+        version(project.version)
+    }
 }
 
 intellij {
     version = "2019.3.2"
     instrumentCode = true
     updateSinceUntilBuild = false
-}
-tasks.patchPluginXml {
-    changeNotes("""
-      this is change note.<BR>hoge""")
 }

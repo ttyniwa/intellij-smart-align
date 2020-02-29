@@ -1,8 +1,8 @@
-package com.niwatty.intellij.plugin.align.settings
+package com.github.ttyniwa.intellij.plugin.align.settings
 
+import com.github.ttyniwa.intellij.plugin.align.settings.gui.SmartAlignConfigForm
 import com.intellij.openapi.options.SearchableConfigurable
 import com.intellij.openapi.project.Project
-import com.niwatty.intellij.plugin.align.settings.gui.SmartAlignConfigForm
 import javax.swing.JComponent
 
 class SmartAlignConfigurable(project: Project) : SearchableConfigurable {
@@ -10,7 +10,7 @@ class SmartAlignConfigurable(project: Project) : SearchableConfigurable {
     private var smartAlignConfigForm: SmartAlignConfigForm? = null
     private val pluginConfig: PluginConfig = PluginConfig.getInstance(project)
 
-    override fun getId(): String = "com.niwatty.plugin.smart-align"
+    override fun getId(): String = "com.github.ttyniwa.intellij.plugin.align"
 
     override fun getDisplayName(): String = "Smart Align Plugin"
 

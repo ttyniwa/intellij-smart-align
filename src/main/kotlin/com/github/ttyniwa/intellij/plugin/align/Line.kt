@@ -1,4 +1,4 @@
-package com.niwatty.intellij.plugin.align
+package com.github.ttyniwa.intellij.plugin.align
 
 data class Line(var tokens: List<Token>) {
 

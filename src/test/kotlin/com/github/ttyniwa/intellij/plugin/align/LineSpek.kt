@@ -1,4 +1,4 @@
-package com.niwatty.intellij.plugin.align
+package com.github.ttyniwa.intellij.plugin.align
 
 import org.assertj.core.api.Assertions.assertThat
 import org.spekframework.spek2.Spek

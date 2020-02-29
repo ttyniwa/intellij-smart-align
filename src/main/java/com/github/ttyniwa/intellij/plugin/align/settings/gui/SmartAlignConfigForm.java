@@ -1,9 +1,9 @@
-package com.niwatty.intellij.plugin.align.settings.gui;
+package com.github.ttyniwa.intellij.plugin.align.settings.gui;
 
+import com.github.ttyniwa.intellij.plugin.align.settings.Config;
+import com.github.ttyniwa.intellij.plugin.align.settings.Config__DeepCopyKt;
+import com.github.ttyniwa.intellij.plugin.align.settings.PluginConfig;
 import com.intellij.ui.components.JBTextField;
-import com.niwatty.intellij.plugin.align.settings.Config;
-import com.niwatty.intellij.plugin.align.settings.Config__DeepCopyKt;
-import com.niwatty.intellij.plugin.align.settings.PluginConfig;
 
 import javax.swing.*;
 
