@@ -32,7 +32,7 @@ object TokenLexerSpek : Spek({
                     Triple(""" ${q}hoge\${q}fuga${q}""", 0, null),
                     Triple("""hoge\${q}fuga${q}""", 0, null),
                     Triple("""${q}hoge\${q}fuga${q}""", 1, null),
-                    Triple("""${q}hoge\${q}fuga${q}""", 11, null)
+                    Triple("""${q}hoge\${q}fuga${q}after""", 12, null)
             ).forEach {
                 val input = it.first
                 val startIndex = it.second
