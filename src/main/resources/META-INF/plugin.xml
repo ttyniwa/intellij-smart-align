@@ -1,11 +1,18 @@
-<idea-plugin>
-    <id>Smart Align Plugin</id>
-    <name>Smart-align</name>
-    <vendor email="tty.niwa@gmail.com" url="http://niwatty.com">niwatty</vendor>
+<idea-plugin url="https://github.com/ttyniwa/intellij-smart-align">
+    <id>com.niwatty.intellij.plugin.smartalign</id>
+    <name>Smart align</name>
+    <version>${project.version}</version>
+    <vendor email="tty.niwa@gmail.com">niwatty</vendor>
 
     <description><![CDATA[
-    This is my first plugin.<br>
-    <em>html tag test hoge hoge hoge</em>
+    Align your code by assignment(=, +=, -=, *=, /=), colon(:) and comma(,). also support trailing comment.
+    You don't have to select what to be aligned, this plugin automatically figure it out.
+
+    <h2>How to use</h2>
+    Place your cursor at where you want your code to be aligned, and invoke the Align command via Code -> 'Smart Align' or Press 'Alt + Shift + ='. Then the code will be automatically aligned.
+
+    <h2>Screenshots</h2>
+    <img src="https://raw.githubusercontent.com/ttyniwa/intellij-smart-align/master/demo.gif">
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
@@ -21,10 +28,10 @@
     </extensions>
 
     <actions>
-        <action id="code.align" class="com.niwatty.intellij.plugin.align.CodeAlignerAction" text="Smart-Align"
+        <action id="code.align" class="com.niwatty.intellij.plugin.align.CodeAlignerAction" text="Smart Align"
                 description="Align your code">
             <add-to-group group-id="CodeFormatGroup" anchor="last"/>
-            <keyboard-shortcut keymap="$default" first-keystroke="control alt I"/>
+            <keyboard-shortcut keymap="\$default" first-keystroke="alt shift ="/>
         </action>
     </actions>
 </idea-plugin>

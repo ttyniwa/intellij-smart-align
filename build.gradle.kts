@@ -29,6 +29,10 @@ dependencies {
     testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:$spekVersion")
 }
 
+tasks.processResources {
+    expand(project.properties)
+}
+
 tasks.test {
     useJUnitPlatform {
         includeEngines("spek2")
