@@ -43,6 +43,20 @@ class MultiLineCommentTokenLexer(private val startPhrase: String, private val en
     }
 }
 
-class StringTokenLexer(enclosure: String) : RegexTokenLexer("""$enclosure(\\.|[^$enclosure\\])*$enclosure""", TokenType.StringLiteral) {
-}
+class StringTokenLexer(private val enclosurePhrase: String) : TokenLexer {
+    override fun tokenize(text: String, startIndex: Int): Token? {
+        if (!text.startsWith(enclosurePhrase, startIndex)) return null
 
+        var pos = startIndex + enclosurePhrase.length
+        while (pos < text.length) {
+            val char = text[pos]
+            if (char == '\\') {
+                pos += 2
+            } else if (text.startsWith(enclosurePhrase, pos)) {
+                return Token(TokenType.StringLiteral, text.substring(startIndex, pos + enclosurePhrase.length))
+            }
+            pos++
+        }
+        return Token(TokenType.StringLiteral, text.substring(startIndex))
+    }
+}

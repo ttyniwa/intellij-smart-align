@@ -14,6 +14,65 @@ object AlignSpek : Spek({
 
         fun assertNotAlign(input: String, lineNum: Int) = assertAlignEquals(input, lineNum, input)
 
+        group("detect lines to align") {
+
+            // TODO pass this test
+//            test("align only same bracket structure lines.") {
+//                val input = """
+//                    var index = 0;
+//                    j = 1;
+//                    for (i=1; i<100; i++) {
+//                """.trimIndent()
+//                val expected = """
+//                    var index = 0;
+//                    j         = 1;
+//                    for (i=1; i<100; i++) {
+//                """.trimIndent()
+//
+//                assertAlignEquals(input, 0, expected)
+//            }
+
+            test("align only continuous lines") {
+                val input = """
+                    var noalign          = 0;
+                    
+                    var align          = 0;
+                    j      = 1;
+                    
+                    var noalign          = 0;
+                """.trimIndent()
+                val expected = """
+                    var noalign          = 0;
+                    
+                    var align = 0;
+                    j         = 1;
+                    
+                    var noalign          = 0;
+                """.trimIndent()
+
+                assertAlignEquals(input, 3, expected)
+            }
+
+            test("only align line which has common token") {
+                val input: String = """
+                    listOf(1,2,3)
+                    let i = 1
+                    let defaultParam=DiscoverListDC.create({
+                      title:title,
+                    });
+                """.trimIndent()
+                val expected: String = """
+                    listOf(1,2,3)
+                    let i            = 1
+                    let defaultParam = DiscoverListDC.create({
+                      title:title,
+                    });
+                """.trimIndent()
+                assertAlignEquals(input, 1, expected)
+            }
+
+        }
+
         group("can align") {
             test("two lines") {
                 val input = """
@@ -59,35 +118,6 @@ object AlignSpek : Spek({
                 assertAlignEquals(input, 1, expected)
             }
 
-            // TODO pass this test
-//            test("align only same bracket structure lines.") {
-//                val input = """
-//                    var index = 0;
-//                    j = 1;
-//                    for (i=1; i<100; i++) {
-//                """.trimIndent()
-//                val expected = """
-//                    var index = 0;
-//                    j         = 1;
-//                    for (i=1; i<100; i++) {
-//                """.trimIndent()
-//
-//                assertAlignEquals(input, 0, expected)
-//            }
-
-//            test("align comments in same column") {
-//                val input = """
-//                    var index = 0; // comment1
-//                    j = 1000; // comment2
-//                """.trimIndent()
-//                val expected = """
-//                    var index = 0;    // comment1
-//                    j         = 1000; // comment2
-//                """.trimIndent()
-//
-//                assertAlignEquals(input, 0, expected)
-//            }
-
             test("two white spaced lines") {
                 val input = """
                     var index          = 0;
@@ -99,27 +129,6 @@ object AlignSpek : Spek({
                 """.trimIndent()
 
                 assertAlignEquals(input, 1, expected)
-            }
-
-            test("align only continuous lines") {
-                val input = """
-                    var noalign          = 0;
-                    
-                    var align          = 0;
-                    j      = 1;
-                    
-                    var noalign          = 0;
-                """.trimIndent()
-                val expected = """
-                    var noalign          = 0;
-                    
-                    var align = 0;
-                    j         = 1;
-                    
-                    var noalign          = 0;
-                """.trimIndent()
-
-                assertAlignEquals(input, 3, expected)
             }
 
             test("no delimiters at specified line") {
@@ -176,32 +185,6 @@ object AlignSpek : Spek({
                 assertAlignEquals(input, 0, expected)
             }
 
-//            test("split") {
-//                val str = """
-//                        i+=j=11;
-//                        hoge+=junk=11231;
-//                        """.trimIndent()
-//
-//                val strings = str.splitDelimiter("=", "+=")
-//                assertThat(strings).isEqualTo(listOf("i", "+=", "j", "=", "11"))
-//            }
-
-            test("only align line which has common token") {
-                val input: String = """
-                    listOf(1,2,3)
-                    let defaultParam=DiscoverListDC.create({
-                      title:title,
-                    });
-                """.trimIndent()
-                val expected: String = """
-                    listOf(1,2,3)
-                    let defaultParam = DiscoverListDC.create({
-                      title:title,
-                    });
-                """.trimIndent()
-                assertAlignEquals(input, 1, expected)
-            }
-
             test("align colon") {
                 val input: String = """
                     tagName: 'tile-hero'
@@ -230,39 +213,9 @@ object AlignSpek : Spek({
                 """.trimIndent()
                 assertAlignEquals(input, 1, expected)
             }
-
-            test("align at first index of delimiter") {
-                val input: String = """
-                    {
-                    hello: '(something=cool())'
-                    arnoldLovesCake: 'oh yeah'
-                    }
-                """.trimIndent()
-                val expected: String = """
-                    {
-                    hello          : '(something=cool())'
-                    arnoldLovesCake: 'oh yeah'
-                    }
-                """.trimIndent()
-
-                assertAlignEquals(input, 1, expected)
-            }
         }
 
         group("ignore lines") {
-
-            test("start with comment") {
-                val template: String = """
-                    {{KEYWORD}}let i = 1;
-                    let jj=0;
-                    }
-                """.trimIndent()
-
-                listOf("//", "/*").forEach { keyword ->
-                    val input = template.replace("{{KEYWORD}}", keyword)
-                    assertNotAlign(input, 0)
-                }
-            }
 
             test("don't have delimiters") {
                 val input = "(0;i<1;++i){"
@@ -343,6 +296,34 @@ object AlignSpek : Spek({
 
                 assertAlignEquals(input, 0, expected)
             }
+        }
+
+        group("comment") {
+            test("start with one line comment doesn't aligned") {
+                val template: String = """
+                    {{KEYWORD}}let i = 1;
+                    let jj=0;
+                    }
+                """.trimIndent()
+
+                listOf("//", "/*").forEach { keyword ->
+                    val input = template.replace("{{KEYWORD}}", keyword)
+                    assertNotAlign(input, 0)
+                }
+            }
+
+//            test("align comments in same column") {
+//                val input = """
+//                    var index = 0; // comment1
+//                    j = 1000; // comment2
+//                """.trimIndent()
+//                val expected = """
+//                    var index = 0;    // comment1
+//                    j         = 1000; // comment2
+//                """.trimIndent()
+//
+//                assertAlignEquals(input, 0, expected)
+//            }
         }
     }
 })
