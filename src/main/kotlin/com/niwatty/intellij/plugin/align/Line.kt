@@ -14,6 +14,9 @@ data class Line(var tokens: List<Token>) {
                 }
             }
         }
+
+        // remove token if empty
+        tokens = tokens.filter { it.text.isNotEmpty() }
     }
 
     /**
