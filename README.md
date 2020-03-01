@@ -15,7 +15,7 @@ Then the code will be automatically aligned.
 
 ## Tips
 
-Because `Reformat Code` and `Smart Align` conflicts, I recommend enable formatter markers in comments via `Settings` -> `Editor` -> `Code Style` -> `Fromatter Control` -> `Enable formatter markers in comments`
+Because `Reformat Code` and `Smart Align` conflicts, I recommend enabling formatter markers in comments via `Settings` -> `Editor` -> `Code Style` -> `Fromatter Control` -> `Enable formatter markers in comments`
 
 ```
 // @formatter:off
