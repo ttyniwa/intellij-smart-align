@@ -10,6 +10,7 @@ enum class TokenType {
     StringLiteral,
     OneLineComment,
     MultiLineComment,
+    Bracket,
     Other,
     ;
 }

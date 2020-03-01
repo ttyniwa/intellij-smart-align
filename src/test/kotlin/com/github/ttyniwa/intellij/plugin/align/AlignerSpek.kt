@@ -180,7 +180,7 @@ object AlignerSpek : Spek({
                 """.trimIndent()
                 val expected = """
                     var index = 123 += 123;
-                    j         = 1   = 1234;
+                    j         = 1    = 1234;
                 """.trimIndent()
 
                 assertAlignEquals(input, 0, expected)

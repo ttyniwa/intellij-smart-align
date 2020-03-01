@@ -49,6 +49,19 @@ data class Line(var tokens: List<Token>) {
         return (startIndex until endIndex)
                 .joinToString("") { i -> tokens[i].text }
     }
+
+    fun filterTokenBy(tokenType: TokenType): List<Token> {
+        return tokens.filter { it.type == tokenType }
+    }
+
+    fun isSamePattern(other: Line, tokenType: TokenType): Boolean {
+        val pattern = filterTokenBy(tokenType)
+        val otherPattern = other.filterTokenBy(tokenType)
+        if (otherPattern == pattern) {
+            return true
+        }
+        return false
+    }
 }
 
 class LineRange(var start: Int, var lines: MutableList<Line>) {

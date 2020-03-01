@@ -34,6 +34,12 @@ object Aligner {
                 SimpleTokenLexer("::", TokenType.Operator),
                 SimpleTokenLexer(":" , TokenType.Colon),
                 SimpleTokenLexer("," , TokenType.Comma),
+                SimpleTokenLexer("[" , TokenType.Bracket),
+                SimpleTokenLexer("]" , TokenType.Bracket),
+                SimpleTokenLexer("{" , TokenType.Bracket),
+                SimpleTokenLexer("}" , TokenType.Bracket),
+                SimpleTokenLexer("(" , TokenType.Bracket),
+                SimpleTokenLexer(")" , TokenType.Bracket),
                 StringTokenLexer("'"),
                 StringTokenLexer("\""),
                 OneLineCommentTokenLexer("//"),
@@ -57,6 +63,8 @@ object Aligner {
     }
 
     private fun align(lineRange: LineRange, alignTargetTokens: List<TokenType>): ResultLines {
+        // option
+        val isPaddingTokenRight = true
 
         //
         // Remove whitespace around [alignTargetTokens]
@@ -97,6 +105,12 @@ object Aligner {
             // find furthest line length
             val furthestLength = resultLines.findFurthestLength()
 
+            val longestOperatorLength = lineRange.lines
+                    .mapIndexed { i, line -> line.tokens.getOrNull(alignedTokenIndexes[i] + 1)?.text?.length }
+                    .filterIndexed { i, _ -> !isCodeAlignCompleted[i] }
+                    .filterNotNull()
+                    .max()
+
             //
             // align token
             lineRange.lines.forEachIndexed { i, line ->
@@ -105,9 +119,14 @@ object Aligner {
                 val currentToken = line.tokens[alignedTokenIndexes[i] + 1]
                 val nextToken = line.tokens.getOrNull(alignedTokenIndexes[i] + 2)
                 val paddingNum = furthestLength - resultLines[i].length
+                val tokenRightPadding = if (isPaddingTokenRight) {
+                    " ".repeat(longestOperatorLength!! - currentToken.text.length)
+                } else {
+                    ""
+                }
 
                 if (currentToken.type in listOf(TokenType.Assign, TokenType.Arrow)) {
-                    resultLines[i] += " ".repeat(paddingNum) + " " + currentToken.text
+                    resultLines[i] += " ".repeat(paddingNum) + " " + tokenRightPadding + currentToken.text
 
                     if (nextToken == null || nextToken.type == TokenType.OneLineComment) {
                         isCodeAlignCompleted[i] = true
@@ -120,7 +139,7 @@ object Aligner {
                         resultLines[i] += currentToken.text
                         isCodeAlignCompleted[i] = true
                     } else {
-                        resultLines[i] += " ".repeat(paddingNum) + currentToken.text + " "
+                        resultLines[i] += " ".repeat(paddingNum) + tokenRightPadding + currentToken.text + " "
                     }
                 } else {
                     throw IllegalArgumentException("Not supported token type to align. " + currentToken.type)
@@ -153,9 +172,12 @@ object Aligner {
      * Detect lines to align around the specified [anchor] line.
      */
     private fun detectLinesToAlign(rawLines: List<String>, anchor: Int, alignTargetTokens: List<TokenType>, tokenLexers: List<TokenLexer>): LineRange {
+        // option
+        val distinctBracketPattern = false
+
         val lexer = Lexer(tokenLexers)
         val anchorLine = Line(lexer.tokenize(rawLines[anchor]))
-        val lines = LineRange(anchor, mutableListOf(anchorLine))
+        val lineRange = LineRange(anchor, mutableListOf(anchorLine))
         var commonTokens = anchorLine.intersect(alignTargetTokens)
 
         // find start line to align.
@@ -166,9 +188,14 @@ object Aligner {
             if (ct.isEmpty()) {
                 break
             }
+            if (distinctBracketPattern) {
+                if (!line.isSamePattern(anchorLine, TokenType.Bracket)) {
+                    break
+                }
+            }
 
             commonTokens = ct
-            lines.addHead(line)
+            lineRange.addHead(line)
         }
 
         // find end line to align.
@@ -179,12 +206,17 @@ object Aligner {
             if (ct.isEmpty()) {
                 break
             }
+            if (distinctBracketPattern) {
+                if (!line.isSamePattern(anchorLine, TokenType.Bracket)) {
+                    break
+                }
+            }
 
             commonTokens = ct
-            lines.addTail(line)
+            lineRange.addTail(line)
         }
 
-        return lines
+        return lineRange
     }
 
     private fun findLineSeparator(text: String): String {
