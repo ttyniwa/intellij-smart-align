@@ -1,4 +1,4 @@
-package com.github.ttyniwa.intellij.plugin.align
+package com.github.ttyniwa.intellij.plugin.align.aligner
 
 enum class TokenType {
     Assign,

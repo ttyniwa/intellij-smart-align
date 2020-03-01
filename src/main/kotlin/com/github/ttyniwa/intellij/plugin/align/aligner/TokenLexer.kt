@@ -1,4 +1,4 @@
-package com.github.ttyniwa.intellij.plugin.align
+package com.github.ttyniwa.intellij.plugin.align.aligner
 
 interface TokenLexer {
     fun tokenize(text: String, startIndex: Int): Token?

@@ -1,5 +1,6 @@
 package com.github.ttyniwa.intellij.plugin.align
 
+import com.github.ttyniwa.intellij.plugin.align.aligner.Aligner
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.PlatformDataKeys

@@ -1,4 +1,4 @@
-package com.github.ttyniwa.intellij.plugin.align
+package com.github.ttyniwa.intellij.plugin.align.aligner
 
 import java.lang.IllegalArgumentException
 
@@ -74,19 +74,18 @@ object Aligner {
 
             //
             // Joins the string before the token to be aligned to [resultLines].
-            (0 until lineRange.size).forEach { i ->
-                if (isCodeAlignCompleted[i]) return@forEach
+            lineRange.lines.forEachIndexed { i, line ->
+                if (isCodeAlignCompleted[i]) return@forEachIndexed
 
-                val line = lineRange.lines[i]
-                val alignTargetTokenIndex = line.indexOf(alignTargetTokens, alignedTokenIndexes[i] + 1)
-                val alignTargetToken = line.tokens.getOrNull(alignTargetTokenIndex)
+                val alignTokenIndex = line.indexOf(alignTargetTokens, alignedTokenIndexes[i] + 1)
+                val alignToken = line.tokens.getOrNull(alignTokenIndex)
 
-                if (alignTargetToken != null) { // token found.
-                    resultLines[i] += line.getRawTextBetween(alignedTokenIndexes[i] + 1, alignTargetTokenIndex)
-                    if (alignTargetToken.type == TokenType.OneLineComment) {
+                if (alignToken != null) { // token found.
+                    resultLines[i] += line.getRawTextBetween(alignedTokenIndexes[i] + 1, alignTokenIndex)
+                    if (alignToken.type == TokenType.OneLineComment) {
                         isCodeAlignCompleted[i] = true
                     }
-                    alignedTokenIndexes[i] = alignTargetTokenIndex - 1
+                    alignedTokenIndexes[i] = alignTokenIndex - 1
                 } else { // token not found.
                     resultLines[i] += line.getRawTextBetween(alignedTokenIndexes[i] + 1, line.tokens.size)
                     isCodeAlignCompleted[i] = true
@@ -100,10 +99,9 @@ object Aligner {
 
             //
             // align token
-            (0 until lineRange.size).forEach { i ->
-                if (isCodeAlignCompleted[i]) return@forEach
+            lineRange.lines.forEachIndexed { i, line ->
+                if (isCodeAlignCompleted[i]) return@forEachIndexed
 
-                val line = lineRange.lines[i]
                 val currentToken = line.tokens[alignedTokenIndexes[i] + 1]
                 val nextToken = line.tokens.getOrNull(alignedTokenIndexes[i] + 2)
                 val paddingNum = furthestLength - resultLines[i].length

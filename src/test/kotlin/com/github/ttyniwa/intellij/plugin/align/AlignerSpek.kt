@@ -1,9 +1,10 @@
 package com.github.ttyniwa.intellij.plugin.align
 
+import com.github.ttyniwa.intellij.plugin.align.aligner.Aligner
 import org.assertj.core.api.Assertions.assertThat
 import org.spekframework.spek2.Spek
 
-object AlignSpek : Spek({
+object AlignerSpek : Spek({
 
     group(".align(input)") {
 
