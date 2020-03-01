@@ -16,9 +16,12 @@ class ResultLines(lineSize: Int) {
     fun findFurthestLength() = lines.map { it.length }.max()!!
 }
 
+data class PaddingInfo(val tokenType: TokenType, val leftPadding: Int, val rightPadding: Int, val isAlignLast: Boolean)
+
 object Aligner {
     fun align(text: String, anchor: Int): String {
-        val alignTargetTokens = listOf(TokenType.Comma, TokenType.Colon, TokenType.Assign, TokenType.OneLineComment)
+        //
+        // settings
         val tokenLexers: List<TokenLexer> = listOf(
                 // @formatter:off
                 SimpleTokenLexer("+=", TokenType.Assign),
@@ -46,25 +49,34 @@ object Aligner {
                 MultiLineCommentTokenLexer("/*", "*/")
                 // @formatter:on
         )
+        val paddingInfos = listOf(
+                PaddingInfo(TokenType.Assign, 1, 1, true),
+                PaddingInfo(TokenType.Colon, 0, 1, false),
+                PaddingInfo(TokenType.Comma, 0, 1, false),
+                PaddingInfo(TokenType.OneLineComment, 1, 0, false)
+        )
+        val alignTargetTokens = paddingInfos.map { it.tokenType }
 
         val lineSeparator = findLineSeparator(text)
         val rawLines = text.split(lineSeparator)
 
-        val alignLines = detectLinesToAlign(rawLines, anchor, alignTargetTokens, tokenLexers)
-        val formattedLines = align(alignLines, alignTargetTokens)
+        val lineRange = detectLinesToAlign(rawLines, anchor, alignTargetTokens, tokenLexers)
+        val formattedLines = align(lineRange, alignTargetTokens, paddingInfos)
 
         return listOf(
-                rawLines.subList(0, alignLines.start),
+                rawLines.subList(0, lineRange.start),
                 formattedLines.toList(),
-                rawLines.subList(alignLines.end + 1, rawLines.size)
+                rawLines.subList(lineRange.end + 1, rawLines.size)
         )
                 .flatten()
                 .joinToString(lineSeparator)
     }
 
-    private fun align(lineRange: LineRange, alignTargetTokens: List<TokenType>): ResultLines {
+    private fun align(lineRange: LineRange, alignTargetTokens: List<TokenType>, paddingInfos: List<PaddingInfo>): ResultLines {
         // option
         val isPaddingTokenRight = true
+
+        val paddingInfoMap = paddingInfos.associateBy { it.tokenType }
 
         //
         // Remove whitespace around [alignTargetTokens]
@@ -118,28 +130,28 @@ object Aligner {
 
                 val currentToken = line.tokens[alignedTokenIndexes[i] + 1]
                 val nextToken = line.tokens.getOrNull(alignedTokenIndexes[i] + 2)
+
                 val paddingNum = furthestLength - resultLines[i].length
-                val tokenRightPadding = if (isPaddingTokenRight) {
-                    " ".repeat(longestOperatorLength!! - currentToken.text.length)
+                val paddingInfo = paddingInfoMap[currentToken.type] ?: error("padding info not found.")
+                val numOfPaddingTokenRight = if (isPaddingTokenRight) {
+                    longestOperatorLength!! - currentToken.text.length
+                } else {
+                    0
+                }
+
+                val isLastTokenToAlign = nextToken == null || nextToken.type == TokenType.OneLineComment
+                val leftPadding = if (!isLastTokenToAlign || paddingInfo.isAlignLast) {
+                    " ".repeat(paddingNum + paddingInfo.leftPadding + numOfPaddingTokenRight)
                 } else {
                     ""
                 }
+                if (currentToken.type in listOf(TokenType.Assign, TokenType.Arrow, TokenType.Comma, TokenType.Colon)) {
+                    resultLines[i] += leftPadding + currentToken.text
 
-                if (currentToken.type in listOf(TokenType.Assign, TokenType.Arrow)) {
-                    resultLines[i] += " ".repeat(paddingNum) + " " + tokenRightPadding + currentToken.text
-
-                    if (nextToken == null || nextToken.type == TokenType.OneLineComment) {
+                    if (isLastTokenToAlign) {
                         isCodeAlignCompleted[i] = true
                     } else {
-                        resultLines[i] += " "
-                    }
-                } else if (currentToken.type in listOf(TokenType.Comma, TokenType.Colon)) {
-
-                    if (nextToken == null || nextToken.type == TokenType.OneLineComment) {
-                        resultLines[i] += currentToken.text
-                        isCodeAlignCompleted[i] = true
-                    } else {
-                        resultLines[i] += " ".repeat(paddingNum) + tokenRightPadding + currentToken.text + " "
+                        resultLines[i] += " ".repeat(paddingInfo.rightPadding)
                     }
                 } else {
                     throw IllegalArgumentException("Not supported token type to align. " + currentToken.type)
@@ -153,6 +165,7 @@ object Aligner {
         //
         // align one line comment.
         val furthestLength = resultLines.findFurthestLength()
+        val paddingInfo = paddingInfoMap[TokenType.OneLineComment] ?: error("padding info not found.")
         lineRange.lines.forEachIndexed { i, line ->
             val currentTokenIndex = alignedTokenIndexes[i] + 1
             if (currentTokenIndex >= line.tokens.size) return@forEachIndexed
@@ -160,7 +173,7 @@ object Aligner {
             val paddingNum = furthestLength - resultLines[i].length
             val comment = line.tokens[currentTokenIndex].text
             if (currentTokenIndex != 0) {
-                resultLines[i] += " "
+                resultLines[i] += " ".repeat(paddingInfo.leftPadding)
             }
             resultLines[i] += " ".repeat(paddingNum) + comment
         }
