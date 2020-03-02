@@ -191,7 +191,7 @@ object Aligner {
         val lexer = Lexer(tokenLexers)
         val anchorLine = Line(lexer.tokenize(rawLines[anchor]))
         val lineRange = LineRange(anchor, mutableListOf(anchorLine))
-        var commonTokens = anchorLine.intersect(alignTargetTokens)
+        var commonTokens = anchorLine.intersect(alignTargetTokens).minus(TokenType.OneLineComment)
 
         // find start line to align.
         for (i in anchor - 1 downTo 0) {

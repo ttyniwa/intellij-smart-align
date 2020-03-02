@@ -313,6 +313,23 @@ object AlignerSpek : Spek({
                 }
             }
 
+            test("don't align comment only line") {
+                val input = """
+                    // @formatter:off
+                    var index = 0; // comment1
+                    j = 1000; // comment2
+                    // @formatter:on
+                """.trimIndent()
+                val expected = """
+                    // @formatter:off
+                    var index = 0;    // comment1
+                    j         = 1000; // comment2
+                    // @formatter:on
+                """.trimIndent()
+
+                assertAlignEquals(input, 1, expected)
+            }
+
             test("align comments in same column") {
                 val input = """
                     var index = 0; // comment1
@@ -328,20 +345,14 @@ object AlignerSpek : Spek({
 
             test("align comments in same column") {
                 val input = """
-                    listOf(
-                        "hello", "world", // comment
-                        "hello world", "yes", // comment
-                        "good bye", // comment
-                        "bye"     // comment
-                    )
+                    var index = 0; // comment1
+                    j = 1000; // comment2
+                    k = 10;
                 """.trimIndent()
                 val expected = """
-                    listOf(
-                        "hello"      , "world", // comment
-                        "hello world", "yes",   // comment
-                        "good bye",             // comment
-                        "bye"                   // comment
-                    )
+                    var index = 0;    // comment1
+                    j         = 1000; // comment2
+                    k         = 10;
                 """.trimIndent()
 
                 assertAlignEquals(input, 1, expected)
