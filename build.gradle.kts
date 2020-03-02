@@ -1,8 +1,11 @@
+import org.jetbrains.kotlin.util.prefixIfNot
+
 plugins {
     java
     kotlin("jvm") version "1.3.61"
     kotlin("kapt") version "1.3.61"
     id("org.jetbrains.intellij") version "0.4.16"
+    id("com.github.breadmoirai.github-release") version "2.2.11"
 }
 
 group = "com.github.ttyniwa"
@@ -23,9 +26,9 @@ dependencies {
     implementation("com.bennyhuo.kotlin:deepcopy-runtime:1.3.0-rc1")
     implementation("com.bennyhuo.kotlin:deepcopy-annotations:1.3.0-rc1")
 
-    testCompile("org.junit.jupiter:junit-jupiter-api:5.6.0")
-    testCompile("org.assertj:assertj-core:3.15.0")
-    testCompile("org.spekframework.spek2:spek-dsl-jvm:$spekVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
+    testImplementation("org.assertj:assertj-core:3.15.0")
+    testImplementation("org.spekframework.spek2:spek-dsl-jvm:$spekVersion")
     testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:$spekVersion")
 }
 
@@ -47,6 +50,25 @@ tasks {
     }
     patchPluginXml {
         version(project.version)
+    }
+
+    val githubToken: String by extra
+    githubRelease {
+        token(githubToken)
+        owner("ttyniwa")
+        repo("intellij-smart-align")
+        body {
+            projectDir.resolve("CHANGELOG.md")
+                    .readText()
+                    .substringAfter("## ")
+                    .substringBefore("## [")
+                    .prefixIfNot("## ")
+        }
+        draft(false)
+        prerelease(true)
+        releaseAssets(buildDir.resolve("distributions").listFiles())
+        overwrite(true)
+        dryRun(false)
     }
 }
 
