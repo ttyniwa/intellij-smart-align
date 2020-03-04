@@ -56,6 +56,9 @@ object Aligner {
     )
     val alignTargetTokens = paddingInfos.map { it.tokenType }
 
+    /**
+     * Align surrounding [anchor] lines.
+     */
     fun align(text: String, anchor: Int): String {
         val lineSeparator = findLineSeparator(text)
         val rawLines = text.split(lineSeparator)
@@ -65,6 +68,9 @@ object Aligner {
         return align(rawLines, lineRange, lineSeparator)
     }
 
+    /**
+     * Align [rowRange] lines.
+     */
     fun align(text: String, rowRange: IntRange): String {
         val lineSeparator = findLineSeparator(text)
         val rawLines = text.split(lineSeparator)
@@ -76,7 +82,7 @@ object Aligner {
         return align(rawLines, lineRange, lineSeparator)
     }
 
-    fun align(rawLines: List<String>, lineRange: LineRange, lineSeparator: String): String {
+    private fun align(rawLines: List<String>, lineRange: LineRange, lineSeparator: String): String {
         val formattedLines = align(lineRange, alignTargetTokens, paddingInfos)
 
         return listOf(

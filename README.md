@@ -4,6 +4,10 @@ A IntelliJ plugin to provide better vertical alignment.
 Align your code by assignment(`=`, `+=`, `-=`, `*=`, `/=`), colon(`:`) and comma(`,`). also support trailing comment.
 You don't have to select what to be aligned, this plugin automatically figure it out.
 
+## Compatibility
+
+IntelliJ IDEA, Android Studio. (and maybe other JetBrains families.)
+
 ## How to use
 
 Place your cursor at where you want your code to be aligned, and invoke the Align command via `Code` -> `Smart Align` or Press `Alt + Shift + =`.<br/>
@@ -23,7 +27,7 @@ Detects and aligns lines that use the same symbol group from the line around the
 
 ### more examples
 
-https://github.com/ttyniwa/intellij-smart-align/blob/master/src/test/kotlin/com/github/ttyniwa/intellij/plugin/align/AlignerSpek.kt
+[Test code](https://github.com/ttyniwa/intellij-smart-align/blob/master/src/test/kotlin/com/github/ttyniwa/intellij/plugin/align/AlignerSpek.kt)
 
 ## Tips
 

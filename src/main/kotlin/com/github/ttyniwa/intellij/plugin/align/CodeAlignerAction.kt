@@ -23,10 +23,11 @@ class CodeAlignerAction : AnAction() {
         val startLine = editor.selectionModel.selectionStartPosition?.line
         val endLine = editor.selectionModel.selectionEndPosition?.line
         val alignedText: String?
+        val selectedText = editor.selectionModel.selectedText
 
-        alignedText = if (startLine != null && endLine != null) {
+        alignedText = if (selectedText != null) {
             // just align the selected text
-            Aligner.align(document.text, IntRange(startLine, endLine))
+            Aligner.align(document.text, IntRange(startLine!!, endLine!!))
         } else {
             // auto-align surrounding caret
             Aligner.align(document.text, currentLine)

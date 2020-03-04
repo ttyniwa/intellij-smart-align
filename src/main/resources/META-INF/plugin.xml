@@ -43,7 +43,7 @@
         <action id="code.align" class="com.github.ttyniwa.intellij.plugin.align.CodeAlignerAction" text="Smart Align"
                 description="Align your code">
             <add-to-group group-id="CodeFormatGroup" anchor="last"/>
-            <keyboard-shortcut keymap="$default" first-keystroke="alt shift EQUALS"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="alt shift MINUS"/>
         </action>
     </actions>
 </idea-plugin>
