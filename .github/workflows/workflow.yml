@@ -1,4 +1,4 @@
-name: Run gradle test and build
+name: Snapshot Release
 on: [push]
 
 jobs:
@@ -27,7 +27,7 @@ jobs:
       - name: Build with Gradle
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: build
+          arguments: build githubRelease
 
       - name: Upload artifact
         uses: actions/upload-artifact@v1.0.0
