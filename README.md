@@ -11,7 +11,19 @@ Then the code will be automatically aligned.
 
 ## Screenshots
 
-![](./demo.gif)
+### align around cursor
+
+Detects and aligns lines that use the same symbol group from the line around the cursor.
+
+![](./screen_shots/around_cursor.gif)
+
+### align selected text
+
+![](./screen_shots/selected_text.gif)
+
+### more examples
+
+https://github.com/ttyniwa/intellij-smart-align/blob/master/src/test/kotlin/com/github/ttyniwa/intellij/plugin/align/AlignerSpek.kt
 
 ## Tips
 

@@ -300,7 +300,7 @@ object AlignerSpek : Spek({
         }
 
         group("comment") {
-            test("start with one line comment doesn't aligned") {
+            test("start with eol comment doesn't aligned") {
                 val template: String = """
                     {{KEYWORD}}let i = 1;
                     let jj=0;
@@ -357,6 +357,58 @@ object AlignerSpek : Spek({
 
                 assertAlignEquals(input, 1, expected)
             }
+        }
+
+        group("align selected text") {
+            test("align range is correct") {
+                val input = """
+                    noalign = 1;
+                    var index = 0; // comment1
+                    j = 1000; // comment2
+                    
+                    k = 10;
+                    index = 10;
+                    noalign = 1;
+                """.trimIndent()
+                val expected = """
+                    noalign = 1;
+                    var index = 0;    // comment1
+                    j         = 1000; // comment2
+                    
+                    k         = 10;
+                    index     = 10;
+                    noalign = 1;
+                """.trimIndent()
+
+                val actual = Aligner.align(input, IntRange(1,5))
+                assertThat(actual).isEqualTo(expected)
+            }
+
+            test("don't align comment only line") {
+                val input = """
+                    noalign = 1;
+                    var index = 0; // comment1
+                    j = 1000; // comment2
+                    // noalign
+                    k = 10;
+                    index = 10;
+                    noalign = 1;
+                """.trimIndent()
+                val expected = """
+                    noalign = 1;
+                    var index = 0;    // comment1
+                    j         = 1000; // comment2
+                    // noalign
+                    k         = 10;
+                    index     = 10;
+                    noalign = 1;
+                """.trimIndent()
+
+                val actual = Aligner.align(input, IntRange(1,5))
+                assertThat(actual).isEqualTo(expected)
+            }
+
+
         }
     }
 })

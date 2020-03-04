@@ -19,48 +19,64 @@ class ResultLines(lineSize: Int) {
 data class PaddingInfo(val tokenType: TokenType, val leftPadding: Int, val rightPadding: Int, val isAlignLast: Boolean)
 
 object Aligner {
-    fun align(text: String, anchor: Int): String {
-        //
-        // settings
-        val tokenLexers: List<TokenLexer> = listOf(
-                // @formatter:off
-                SimpleTokenLexer("+=", TokenType.Assign),
-                SimpleTokenLexer("-=", TokenType.Assign),
-                SimpleTokenLexer("*=", TokenType.Assign),
-                SimpleTokenLexer("/=", TokenType.Assign),
-                SimpleTokenLexer("=" , TokenType.Assign),
-                SimpleTokenLexer("->", TokenType.Arrow),
-                SimpleTokenLexer("=>", TokenType.Comparator),
-                SimpleTokenLexer("=<", TokenType.Comparator),
-                SimpleTokenLexer(">=", TokenType.Comparator),
-                SimpleTokenLexer("<=", TokenType.Comparator),
-                SimpleTokenLexer("::", TokenType.Operator),
-                SimpleTokenLexer(":" , TokenType.Colon),
-                SimpleTokenLexer("," , TokenType.Comma),
-                SimpleTokenLexer("[" , TokenType.Bracket),
-                SimpleTokenLexer("]" , TokenType.Bracket),
-                SimpleTokenLexer("{" , TokenType.Bracket),
-                SimpleTokenLexer("}" , TokenType.Bracket),
-                SimpleTokenLexer("(" , TokenType.Bracket),
-                SimpleTokenLexer(")" , TokenType.Bracket),
-                StringTokenLexer("'"),
-                StringTokenLexer("\""),
-                OneLineCommentTokenLexer("//"),
-                MultiLineCommentTokenLexer("/*", "*/")
-                // @formatter:on
-        )
-        val paddingInfos = listOf(
-                PaddingInfo(TokenType.Assign, 1, 1, true),
-                PaddingInfo(TokenType.Colon, 0, 1, false),
-                PaddingInfo(TokenType.Comma, 0, 1, false),
-                PaddingInfo(TokenType.OneLineComment, 1, 0, false)
-        )
-        val alignTargetTokens = paddingInfos.map { it.tokenType }
+    //
+    // settings
+    val tokenLexers: List<TokenLexer> = listOf(
+            // @formatter:off
+            SimpleTokenLexer("+=", TokenType.Assign),
+            SimpleTokenLexer("-=", TokenType.Assign),
+            SimpleTokenLexer("*=", TokenType.Assign),
+            SimpleTokenLexer("/=", TokenType.Assign),
+            SimpleTokenLexer("=" , TokenType.Assign),
+            SimpleTokenLexer("->", TokenType.Arrow),
+            SimpleTokenLexer("=>", TokenType.Comparator),
+            SimpleTokenLexer("=<", TokenType.Comparator),
+            SimpleTokenLexer(">=", TokenType.Comparator),
+            SimpleTokenLexer("<=", TokenType.Comparator),
+            SimpleTokenLexer("::", TokenType.Operator),
+            SimpleTokenLexer(":" , TokenType.Colon),
+            SimpleTokenLexer("," , TokenType.Comma),
+            SimpleTokenLexer("[" , TokenType.Bracket),
+            SimpleTokenLexer("]" , TokenType.Bracket),
+            SimpleTokenLexer("{" , TokenType.Bracket),
+            SimpleTokenLexer("}" , TokenType.Bracket),
+            SimpleTokenLexer("(" , TokenType.Bracket),
+            SimpleTokenLexer(")" , TokenType.Bracket),
+            StringTokenLexer("'"),
+            StringTokenLexer("\""),
+            EndOfLineCommentTokenLexer("//"),
+            BlockCommentTokenLexer("/*", "*/")
+            // @formatter:on
+    )
+    val paddingInfos = listOf(
+            PaddingInfo(TokenType.Assign, 1, 1, true),
+            PaddingInfo(TokenType.Colon, 0, 1, false),
+            PaddingInfo(TokenType.Comma, 0, 1, false),
+            PaddingInfo(TokenType.EndOfLineComment, 1, 0, false)
+    )
+    val alignTargetTokens = paddingInfos.map { it.tokenType }
 
+    fun align(text: String, anchor: Int): String {
         val lineSeparator = findLineSeparator(text)
         val rawLines = text.split(lineSeparator)
 
         val lineRange = detectLinesToAlign(rawLines, anchor, alignTargetTokens, tokenLexers)
+
+        return align(rawLines, lineRange, lineSeparator)
+    }
+
+    fun align(text: String, rowRange: IntRange): String {
+        val lineSeparator = findLineSeparator(text)
+        val rawLines = text.split(lineSeparator)
+
+        val lexer = Lexer(tokenLexers)
+        val lines = rowRange.map { Line(lexer.tokenize(rawLines[it])) }
+        val lineRange = LineRange(rowRange.first, lines.toMutableList())
+
+        return align(rawLines, lineRange, lineSeparator)
+    }
+
+    fun align(rawLines: List<String>, lineRange: LineRange, lineSeparator: String): String {
         val formattedLines = align(lineRange, alignTargetTokens, paddingInfos)
 
         return listOf(
@@ -102,7 +118,7 @@ object Aligner {
 
                 if (alignToken != null) { // token found.
                     resultLines[i] += line.getRawTextBetween(alignedTokenIndexes[i] + 1, alignTokenIndex)
-                    if (alignToken.type == TokenType.OneLineComment) {
+                    if (alignToken.type == TokenType.EndOfLineComment) {
                         isCodeAlignCompleted[i] = true
                     }
                     alignedTokenIndexes[i] = alignTokenIndex - 1
@@ -139,7 +155,7 @@ object Aligner {
                     0
                 }
 
-                val isLastTokenToAlign = nextToken == null || nextToken.type == TokenType.OneLineComment
+                val isLastTokenToAlign = nextToken == null || nextToken.type == TokenType.EndOfLineComment
                 val leftPadding = if (!isLastTokenToAlign || paddingInfo.isAlignLast) {
                     " ".repeat(paddingNum + paddingInfo.leftPadding + numOfPaddingTokenRight)
                 } else {
@@ -163,13 +179,21 @@ object Aligner {
         } while (didProcess)
 
         //
-        // align one line comment.
+        // align EOL comment.
         val furthestLength = resultLines.findFurthestLength()
-        val paddingInfo = paddingInfoMap[TokenType.OneLineComment] ?: error("padding info not found.")
+        val paddingInfo = paddingInfoMap[TokenType.EndOfLineComment] ?: error("padding info not found.")
         lineRange.lines.forEachIndexed { i, line ->
             val currentTokenIndex = alignedTokenIndexes[i] + 1
             if (currentTokenIndex >= line.tokens.size) return@forEachIndexed
 
+            // if no token to align found, don't align EOL Comment.
+            val isExistAlignTarget = line.isExists(alignTargetTokens.minus(TokenType.EndOfLineComment))
+            if (!isExistAlignTarget) {
+                resultLines[i] += line.tokens[currentTokenIndex].text
+                return@forEachIndexed
+            }
+
+            // align eol comment.
             val paddingNum = furthestLength - resultLines[i].length
             val comment = line.tokens[currentTokenIndex].text
             if (currentTokenIndex != 0) {
@@ -191,7 +215,7 @@ object Aligner {
         val lexer = Lexer(tokenLexers)
         val anchorLine = Line(lexer.tokenize(rawLines[anchor]))
         val lineRange = LineRange(anchor, mutableListOf(anchorLine))
-        var commonTokens = anchorLine.intersect(alignTargetTokens).minus(TokenType.OneLineComment)
+        var commonTokens = anchorLine.intersect(alignTargetTokens).minus(TokenType.EndOfLineComment)
 
         // find start line to align.
         for (i in anchor - 1 downTo 0) {

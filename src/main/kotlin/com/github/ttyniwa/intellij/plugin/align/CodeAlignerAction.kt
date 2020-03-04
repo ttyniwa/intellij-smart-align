@@ -20,20 +20,18 @@ class CodeAlignerAction : AnAction() {
 
         val document = editor.document
         val currentLine = editor.caretModel.logicalPosition.line
-        val autoAlignedText: String?
-        val startOffset: Int
-        val endOffset: Int
+        val startLine = editor.selectionModel.selectionStartPosition?.line
+        val endLine = editor.selectionModel.selectionEndPosition?.line
+        val alignedText: String?
 
-//        if (selectedText != null) { // just align the selected text
-//            autoAlignedText = TokenAligner.align(selectedText, currentLine)
-//            startOffset = selection.selectionStart
-//            endOffset = selection.selectionEnd
-//        } else { // auto-align surrounding caret
-            autoAlignedText = Aligner.align(document.text, currentLine)
-            startOffset = 0
-            endOffset = document.textLength
-//        }
-        replaceString(project, document, autoAlignedText, startOffset, endOffset)
+        alignedText = if (startLine != null && endLine != null) {
+            // just align the selected text
+            Aligner.align(document.text, IntRange(startLine, endLine))
+        } else {
+            // auto-align surrounding caret
+            Aligner.align(document.text, currentLine)
+        }
+        replaceString(project, document, alignedText, 0, document.textLength)
     }
 
     private fun replaceString(project: Project?, document: Document, replaceText: String, startOffset: Int, endOffset: Int) {

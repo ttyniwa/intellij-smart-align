@@ -62,6 +62,10 @@ data class Line(var tokens: List<Token>) {
         }
         return false
     }
+
+    fun isExists(tokenTypes: List<TokenType>): Boolean {
+        return tokens.firstOrNull { it.type in tokenTypes } != null
+    }
 }
 
 class LineRange(var start: Int, var lines: MutableList<Line>) {

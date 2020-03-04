@@ -51,13 +51,13 @@ object TokenLexerSpek : Spek({
         }
     }
 
-    group("OneLineCommentTokenLexer") {
-        val lexer = OneLineCommentTokenLexer("//")
+    group("EndOfLineCommentTokenLexer") {
+        val lexer = EndOfLineCommentTokenLexer("//")
         listOf(
                 // @formatter:off
-                Triple("""// 1"""       , 0, Token(TokenType.OneLineComment, """// 1""")),
-                Triple("""0 // 1"""     , 2, Token(TokenType.OneLineComment, """// 1""")),
-                Triple("""0 // 1 // a""", 2, Token(TokenType.OneLineComment, """// 1 // a""")),
+                Triple("""// 1"""       , 0, Token(TokenType.EndOfLineComment, """// 1""")),
+                Triple("""0 // 1"""     , 2, Token(TokenType.EndOfLineComment, """// 1""")),
+                Triple("""0 // 1 // a""", 2, Token(TokenType.EndOfLineComment, """// 1 // a""")),
                 Triple("""0 // 1"""     , 0, null),
                 Triple("""0 // 1"""     , 3, null)
                 // @formatter:on
@@ -74,14 +74,14 @@ object TokenLexerSpek : Spek({
     }
 
     group("MultiLineCommentTokenLexer") {
-        val lexer = MultiLineCommentTokenLexer("/*", "*/")
+        val lexer = BlockCommentTokenLexer("/*", "*/")
         listOf(
                 // @formatter:off
-                Triple("/* 1 */"      , 0, Token(TokenType.MultiLineComment, "/* 1 */")),
-                Triple("0 /* 1 */"    , 2, Token(TokenType.MultiLineComment, "/* 1 */")),
-                Triple("/* 1 /* a */" , 0, Token(TokenType.MultiLineComment, "/* 1 /* a */")),
-                Triple("/* 1"         , 0, Token(TokenType.MultiLineComment, "/* 1")),
-                Triple("/* 1 */ after", 0, Token(TokenType.MultiLineComment, "/* 1 */")),
+                Triple("/* 1 */"      , 0, Token(TokenType.BlockComment, "/* 1 */")),
+                Triple("0 /* 1 */"    , 2, Token(TokenType.BlockComment, "/* 1 */")),
+                Triple("/* 1 /* a */" , 0, Token(TokenType.BlockComment, "/* 1 /* a */")),
+                Triple("/* 1"         , 0, Token(TokenType.BlockComment, "/* 1")),
+                Triple("/* 1 */ after", 0, Token(TokenType.BlockComment, "/* 1 */")),
                 Triple("0 /* 1 */"    , 0, null),
                 Triple("0 /* 1 */"    , 3, null)
                 // @formatter:on

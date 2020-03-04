@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
   - Alignment feature.
   - auto detect lines to align.
+  - select and align text.
 ### Changed
   - ?
 ### Fixed

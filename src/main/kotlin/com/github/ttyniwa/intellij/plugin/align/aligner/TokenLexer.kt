@@ -22,23 +22,23 @@ open class RegexTokenLexer(pattern: String, private val tokenType: TokenType) : 
     }
 }
 
-class OneLineCommentTokenLexer(private val startPhrase: String) : TokenLexer {
+class EndOfLineCommentTokenLexer(private val startPhrase: String) : TokenLexer {
     override fun tokenize(text: String, startIndex: Int): Token? {
         if (!text.startsWith(startPhrase, startIndex)) return null
 
-        return Token(TokenType.OneLineComment, text.substring(startIndex))
+        return Token(TokenType.EndOfLineComment, text.substring(startIndex))
     }
 }
 
-class MultiLineCommentTokenLexer(private val startPhrase: String, private val endPhrase: String) : TokenLexer {
+class BlockCommentTokenLexer(private val startPhrase: String, private val endPhrase: String) : TokenLexer {
     override fun tokenize(text: String, startIndex: Int): Token? {
         if (!text.startsWith(startPhrase, startIndex)) return null
 
         val endIndex = text.indexOf(endPhrase, startIndex + startPhrase.length)
         return if (endIndex == -1) {
-            Token(TokenType.MultiLineComment, text.substring(startIndex))
+            Token(TokenType.BlockComment, text.substring(startIndex))
         } else {
-            Token(TokenType.MultiLineComment, text.substring(startIndex, endIndex + endPhrase.length))
+            Token(TokenType.BlockComment, text.substring(startIndex, endIndex + endPhrase.length))
         }
     }
 }

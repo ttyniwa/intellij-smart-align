@@ -8,8 +8,8 @@ enum class TokenType {
     Colon,
     Comma,
     StringLiteral,
-    OneLineComment,
-    MultiLineComment,
+    EndOfLineComment,
+    BlockComment,
     Bracket,
     Other,
     ;
