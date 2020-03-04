@@ -21,7 +21,7 @@ data class PaddingInfo(val tokenType: TokenType, val leftPadding: Int, val right
 object Aligner {
     //
     // settings
-    val tokenLexers: List<TokenLexer> = listOf(
+    private val tokenLexers: List<TokenLexer> = listOf(
             // @formatter:off
             SimpleTokenLexer("+=", TokenType.Assign),
             SimpleTokenLexer("-=", TokenType.Assign),
@@ -48,13 +48,13 @@ object Aligner {
             BlockCommentTokenLexer("/*", "*/")
             // @formatter:on
     )
-    val paddingInfos = listOf(
+    private val paddingInfos = listOf(
             PaddingInfo(TokenType.Assign, 1, 1, true),
             PaddingInfo(TokenType.Colon, 0, 1, false),
             PaddingInfo(TokenType.Comma, 0, 1, false),
             PaddingInfo(TokenType.EndOfLineComment, 1, 0, false)
     )
-    val alignTargetTokens = paddingInfos.map { it.tokenType }
+    private val alignTargetTokens = paddingInfos.map { it.tokenType }
 
     /**
      * Align surrounding [anchor] lines.
@@ -63,7 +63,7 @@ object Aligner {
         val lineSeparator = findLineSeparator(text)
         val rawLines = text.split(lineSeparator)
 
-        val lineRange = detectLinesToAlign(rawLines, anchor, alignTargetTokens, tokenLexers)
+        val lineRange = detectLinesToAlign(rawLines, anchor)
 
         return align(rawLines, lineRange, lineSeparator)
     }
@@ -83,7 +83,7 @@ object Aligner {
     }
 
     private fun align(rawLines: List<String>, lineRange: LineRange, lineSeparator: String): String {
-        val formattedLines = align(lineRange, alignTargetTokens, paddingInfos)
+        val formattedLines = align(lineRange)
 
         return listOf(
                 rawLines.subList(0, lineRange.start),
@@ -94,7 +94,7 @@ object Aligner {
                 .joinToString(lineSeparator)
     }
 
-    private fun align(lineRange: LineRange, alignTargetTokens: List<TokenType>, paddingInfos: List<PaddingInfo>): ResultLines {
+    private fun align(lineRange: LineRange): ResultLines {
         // option
         val isPaddingTokenRight = true
 
@@ -214,7 +214,7 @@ object Aligner {
     /**
      * Detect lines to align around the specified [anchor] line.
      */
-    private fun detectLinesToAlign(rawLines: List<String>, anchor: Int, alignTargetTokens: List<TokenType>, tokenLexers: List<TokenLexer>): LineRange {
+    private fun detectLinesToAlign(rawLines: List<String>, anchor: Int): LineRange {
         // option
         val distinctBracketPattern = false
 
