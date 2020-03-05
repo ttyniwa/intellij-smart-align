@@ -1,6 +1,6 @@
 name: Snapshot Release
 env:
-  githubRelease: ${{secrets.githubRelease}}
+  ORG_GRADLE_PROJECT_githubRelease: ${{secrets.githubRelease}}
 on: [push]
 
 jobs:
