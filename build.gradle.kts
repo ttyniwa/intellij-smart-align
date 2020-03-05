@@ -52,7 +52,7 @@ tasks {
         version(project.version)
     }
 
-    val githubToken: String = findProperty("githubToken") as String? ?: ""
+    val githubToken: String = findProperty("githubToken") as String? ?: System.getenv("GITHUB_TOKEN")
     githubRelease {
         token(githubToken)
         owner("ttyniwa")
