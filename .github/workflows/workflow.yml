@@ -1,4 +1,6 @@
 name: Snapshot Release
+env:
+  githubRelease: ${{secrets.githubRelease}}
 on: [push]
 
 jobs:
