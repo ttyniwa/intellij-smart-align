@@ -101,8 +101,16 @@ object Aligner {
         val paddingInfoMap = paddingInfos.associateBy { it.tokenType }
 
         //
+        // find the line that has no [alignTargetTokens] except EOL Comment, and mark it ignorable
+        val isAlignIgnorableLine = lineRange.lines.map { line ->
+            line.indexOf(alignTargetTokens.minus(TokenType.EndOfLineComment), 0) == -1
+        }
+
+        //
         // Remove whitespace around [alignTargetTokens]
-        lineRange.lines.forEach { line -> line.trim(alignTargetTokens) }
+        lineRange.lines
+                .filterIndexed { i, _ -> !isAlignIgnorableLine[i] }
+                .forEach { line -> line.trim(alignTargetTokens) }
 
         //
         // Align
@@ -117,6 +125,7 @@ object Aligner {
             //
             // Joins the string before the token to be aligned to [resultLines].
             lineRange.lines.forEachIndexed { i, line ->
+                if (isAlignIgnorableLine[i]) return@forEachIndexed
                 if (isCodeAlignCompleted[i]) return@forEachIndexed
 
                 val alignTokenIndex = line.indexOf(alignTargetTokens, alignedTokenIndexes[i] + 1)
@@ -137,17 +146,21 @@ object Aligner {
 
             //
             // find furthest line length
-            val furthestLength = resultLines.findFurthestLength()
+            val furthestLength = (0 until lineRange.lines.size)
+                    .filter { !isAlignIgnorableLine[it] }
+                    .map { resultLines[it].length }
+                    .max() ?: 0
 
             val longestOperatorLength = lineRange.lines
                     .mapIndexed { i, line -> line.tokens.getOrNull(alignedTokenIndexes[i] + 1)?.text?.length }
-                    .filterIndexed { i, _ -> !isCodeAlignCompleted[i] }
+                    .filterIndexed { i, _ -> !isCodeAlignCompleted[i] && !isAlignIgnorableLine[i] }
                     .filterNotNull()
                     .max()
 
             //
             // align token
             lineRange.lines.forEachIndexed { i, line ->
+                if (isAlignIgnorableLine[i]) return@forEachIndexed
                 if (isCodeAlignCompleted[i]) return@forEachIndexed
 
                 val currentToken = line.tokens[alignedTokenIndexes[i] + 1]
@@ -189,6 +202,8 @@ object Aligner {
         val furthestLength = resultLines.findFurthestLength()
         val paddingInfo = paddingInfoMap[TokenType.EndOfLineComment] ?: error("padding info not found.")
         lineRange.lines.forEachIndexed { i, line ->
+            if (isAlignIgnorableLine[i]) return@forEachIndexed
+
             val currentTokenIndex = alignedTokenIndexes[i] + 1
             if (currentTokenIndex >= line.tokens.size) return@forEachIndexed
 
@@ -206,6 +221,14 @@ object Aligner {
                 resultLines[i] += " ".repeat(paddingInfo.leftPadding)
             }
             resultLines[i] += " ".repeat(paddingNum) + comment
+        }
+
+        //
+        // merge ignored lines.
+        lineRange.lines.forEachIndexed { i, line ->
+            if (isAlignIgnorableLine[i]) {
+                resultLines[i] = line.getRawTextBetween(0, line.tokens.size)
+            }
         }
 
         return resultLines

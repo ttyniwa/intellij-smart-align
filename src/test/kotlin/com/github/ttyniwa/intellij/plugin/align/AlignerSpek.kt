@@ -389,7 +389,7 @@ object AlignerSpek : Spek({
                     noalign = 1;
                     var index = 0; // comment1
                     j = 1000; // comment2
-                    // noalign
+                      // noalign
                     k = 10;
                     index = 10;
                     noalign = 1;
@@ -398,7 +398,7 @@ object AlignerSpek : Spek({
                     noalign = 1;
                     var index = 0;    // comment1
                     j         = 1000; // comment2
-                    // noalign
+                      // noalign
                     k         = 10;
                     index     = 10;
                     noalign = 1;
