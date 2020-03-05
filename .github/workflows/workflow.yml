@@ -1,6 +1,4 @@
 name: Snapshot Release
-env:
-  ORG_GRADLE_PROJECT_githubRelease: ${{secrets.githubRelease}}
 on: [push]
 
 jobs:
@@ -30,6 +28,9 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: build githubRelease
+        env:
+          githubRelease: ${{secrets.githubRelease}}
+
 
       - name: Upload artifact
         uses: actions/upload-artifact@v1.0.0
