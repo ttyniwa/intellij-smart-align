@@ -29,7 +29,7 @@ jobs:
         with:
           arguments: build githubRelease
         env:
-          githubRelease: ${{secrets.githubRelease}}
+          githubToken: ${{secrets.githubToken}}
 
 
       - name: Upload artifact
