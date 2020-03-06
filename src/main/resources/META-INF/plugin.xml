@@ -1,28 +1,7 @@
 <idea-plugin url="https://github.com/ttyniwa/intellij-smart-align">
     <id>com.github.ttyniwa.intellij.plugin.align</id>
     <name>Smart align</name>
-    <vendor email="tty.niwa@gmail.com" url="https://github.com/ttyniwa">niwatty</vendor>
-
-    <description><![CDATA[
-    Align your code by assignment(=, +=, -=, *=, /=), colon(:) and comma(,). also support trailing comment.<br/>
-    You don't have to select what to be aligned, this plugin automatically figure it out.
-
-    <h2>How to use</h2>
-    Place your cursor at where you want your code to be aligned, and invoke the Align command via Code -> 'Smart Align' or Press 'Alt + Shift + ='.<br/>
-    Then the code will be automatically aligned.
-
-    <h2>Screenshots</h2>
-    <img src="https://raw.githubusercontent.com/ttyniwa/intellij-smart-align/master/demo.gif">
-    ]]></description>
-
-    <change-notes><![CDATA[
-        <p>1.0</p>
-        <ul>
-            <li>Initial Release.</li>
-            <li>Support assignment, colon, comma and trailing comment.</li>
-        </ul>
-        ]]>
-    </change-notes>
+    <vendor email="tty.niwa@gmail.com" url="https://github.com/ttyniwa">ttyniwa</vendor>
 
     <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
     <idea-version since-build="191"/>

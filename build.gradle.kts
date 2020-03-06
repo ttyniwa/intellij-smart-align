@@ -1,4 +1,15 @@
 import org.jetbrains.kotlin.util.prefixIfNot
+import com.vladsch.flexmark.parser.Parser
+import com.vladsch.flexmark.html.HtmlRenderer
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.vladsch.flexmark:flexmark:0.60.2")
+    }
+}
 
 plugins {
     java
@@ -36,6 +47,25 @@ configure<JavaPluginConvention> {
     sourceCompatibility = JavaVersion.VERSION_1_8
 }
 
+fun readmeXmlAsHtml():String {
+    val parser = Parser.builder().build()
+    val renderer = HtmlRenderer.builder().build()
+    var readmeContent = File(rootProject.uri("README.md")).readText()
+    // since these images needs to shown from within intellij, lest put absolute urls so that the images & changelog will be visible
+    readmeContent = readmeContent.replace("screen_shots/selected_text.gif", "https://raw.githubusercontent.com/ttyniwa/intellij-smart-align/$version/screen_shots/selected_text.gif")
+    readmeContent = readmeContent.replace("screen_shots/around_cursor.gif", "https://raw.githubusercontent.com/ttyniwa/intellij-smart-align/$version/screen_shots/around_cursor.gif")
+    readmeContent = readmeContent.replace("CHANGELOG.md", "https://github.com/ttyniwa/intellij-smart-align/blob/$version/CHANGELOG.md")
+    val readmeDocument = parser.parse(readmeContent)
+    return renderer.render(readmeDocument)
+}
+
+fun changeLogAsHtml():String {
+    val parser = Parser.builder().build()
+    val renderer = HtmlRenderer.builder().build()
+    val changeLogDocument = parser.parse(File(rootProject.uri("CHANGELOG.md")).readText())
+    return renderer.render(changeLogDocument)
+}
+
 tasks {
     compileKotlin {
         kotlinOptions.jvmTarget = "1.8"
@@ -50,6 +80,8 @@ tasks {
     }
     patchPluginXml {
         version(project.version)
+        pluginDescription(readmeXmlAsHtml())
+        changeNotes(changeLogAsHtml())
     }
 
     val githubToken: String = findProperty("githubToken") as String? ?: System.getenv("GITHUB_TOKEN") ?: ""
