@@ -97,7 +97,7 @@ tasks {
                     .prefixIfNot("## ")
         }
         draft(false)
-        prerelease(true)
+        prerelease(false)
         releaseAssets(buildDir.resolve("distributions").listFiles())
         overwrite(true)
         dryRun(false)
