@@ -19,11 +19,11 @@ Then the code will be automatically aligned.
 
 Detects and aligns lines that use the same symbol group from the line around the cursor.
 
-<img src="screen_shots/around_cursor.gif" width="500px">
+<img src="screen_shots/around_cursor.gif" width="500">
 
 ### align selected text
 
-<img src="screen_shots/selected_text.gif" width="500px">
+<img src="screen_shots/selected_text.gif" width="500">
 
 ### more examples
 
