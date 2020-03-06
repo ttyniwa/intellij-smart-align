@@ -101,19 +101,19 @@ object Aligner {
         val paddingInfoMap = paddingInfos.associateBy { it.tokenType }
 
         //
-        // find the line that has no [alignTargetTokens] except EOL Comment, and mark it ignorable
+        // 1. find the line that has no [alignTargetTokens] except EOL Comment, and mark it will not align.
         val isAlignIgnorableLine = lineRange.lines.map { line ->
             line.indexOf(alignTargetTokens.minus(TokenType.EndOfLineComment), 0) == -1
         }
 
         //
-        // Remove whitespace around [alignTargetTokens]
+        // 2. Remove whitespace around [alignTargetTokens]
         lineRange.lines
                 .filterIndexed { i, _ -> !isAlignIgnorableLine[i] }
                 .forEach { line -> line.trim(alignTargetTokens) }
 
         //
-        // Align
+        // 3. Align
         val resultLines = ResultLines(lineRange.size)
         val alignedTokenIndexes = IntArray(lineRange.size) { -1 }
         val isCodeAlignCompleted = BooleanArray(lineRange.size) { false }
@@ -198,7 +198,7 @@ object Aligner {
         } while (didProcess)
 
         //
-        // align EOL comment.
+        // 4. align EOL comment.
         val furthestLength = resultLines.findFurthestLength()
         val paddingInfo = paddingInfoMap[TokenType.EndOfLineComment] ?: error("padding info not found.")
         lineRange.lines.forEachIndexed { i, line ->
@@ -224,7 +224,7 @@ object Aligner {
         }
 
         //
-        // merge ignored lines.
+        // 5. merge ignored lines.
         lineRange.lines.forEachIndexed { i, line ->
             if (isAlignIgnorableLine[i]) {
                 resultLines[i] = line.getRawTextBetween(0, line.tokens.size)
