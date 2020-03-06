@@ -27,10 +27,7 @@ jobs:
       - name: Build with Gradle
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: build githubRelease
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-
+          arguments: build
 
       - name: Upload artifact
         uses: actions/upload-artifact@v1.0.0

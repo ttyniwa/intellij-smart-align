@@ -20,18 +20,21 @@ class CodeAlignerAction : AnAction() {
 
         val document = editor.document
         val currentLine = editor.caretModel.logicalPosition.line
-        val startLine = editor.selectionModel.selectionStartPosition?.line
-        val endLine = editor.selectionModel.selectionEndPosition?.line
-        val alignedText: String?
         val selectedText = editor.selectionModel.selectedText
 
-        alignedText = if (selectedText != null) {
+        val alignedText = if (selectedText != null) {
             // just align the selected text
-            Aligner.align(document.text, IntRange(startLine!!, endLine!!))
+            val selection = editor.selectionModel
+            val startPos = editor.visualToLogicalPosition(selection.selectionStartPosition!!)
+            val endPos = editor.visualToLogicalPosition(selection.selectionEndPosition!!)
+            val startLine = startPos.line
+            val endLine = endPos.line + if (endPos.column == 0) -1 else 0
+            Aligner.align(document.text, IntRange(startLine, endLine))
         } else {
             // auto-align surrounding caret
             Aligner.align(document.text, currentLine)
         }
+
         replaceString(project, document, alignedText, 0, document.textLength)
     }
 

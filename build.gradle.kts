@@ -2,8 +2,8 @@ import org.jetbrains.kotlin.util.prefixIfNot
 
 plugins {
     java
-    kotlin("jvm") version "1.3.61"
-    kotlin("kapt") version "1.3.61"
+    kotlin("jvm") version "1.3.70"
+    kotlin("kapt") version "1.3.70"
     id("org.jetbrains.intellij") version "0.4.16"
     id("com.github.breadmoirai.github-release") version "2.2.11"
 }
@@ -52,7 +52,7 @@ tasks {
         version(project.version)
     }
 
-    val githubToken: String = findProperty("githubToken") as String? ?: System.getenv("GITHUB_TOKEN")
+    val githubToken: String = findProperty("githubToken") as String? ?: System.getenv("GITHUB_TOKEN") ?: ""
     githubRelease {
         token(githubToken)
         owner("ttyniwa")
