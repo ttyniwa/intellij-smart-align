@@ -6,7 +6,7 @@ class AlignDemoCode {
         var aaa = 1
         var b = 2
         b += 2
-        aaa+= 1
+        aaa += 1
 
         listOf(
                 listOf("hello", "world"),
@@ -23,14 +23,13 @@ class AlignDemoCode {
 
     fun selectAndAlign() {
         var notAligned = 1
-        var aaa = 1
-        var b = 2
-
-        aaa += 123
-        b += 2
+        var aaa  = 1
+        var b    = 2
+        aaa     += 123
+        b       += 2
         var notAligned2 = 1
 
-        notAligned+=1
-        notAligned2+=1
+        notAligned += 1
+        notAligned2 += 1
     }
 }
