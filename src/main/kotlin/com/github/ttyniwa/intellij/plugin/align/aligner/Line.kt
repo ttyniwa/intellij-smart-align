@@ -4,11 +4,15 @@ data class Line(var tokens: List<Token>) {
 
     /**
      * Trim spaces around the specified [tokenTypes]
+     * if first token is blank, skip trim it.
      */
     fun trim(tokenTypes: List<TokenType>) {
         (1 until tokens.size).forEach { i ->
-            if (tokenTypes.contains(tokens[i].type)) {
-                tokens[i - 1].text = tokens[i - 1].text.trimEnd()
+            if (tokens[i].type in tokenTypes) {
+                // if first token is blank, skip trim.
+                if (!(i - 1 == 0 && tokens[i-1].text.isBlank())) {
+                    tokens[i - 1].text = tokens[i - 1].text.trimEnd()
+                }
                 if (i + 1 < tokens.size) {
                     tokens[i + 1].text = tokens[i + 1].text.trimStart()
                 }

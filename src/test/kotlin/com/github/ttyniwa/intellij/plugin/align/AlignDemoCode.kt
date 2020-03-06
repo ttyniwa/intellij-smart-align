@@ -1,10 +1,12 @@
 package com.github.ttyniwa.intellij.plugin.align
 
+@Suppress("unused")
 class AlignDemoCode {
     fun alignAroundCursor() {
         var aaa = 1
         var b = 2
         b += 2
+        aaa+= 1
 
         listOf(
                 listOf("hello", "world"),
@@ -20,12 +22,15 @@ class AlignDemoCode {
     }
 
     fun selectAndAlign() {
-        val notAligned = 1
+        var notAligned = 1
         var aaa = 1
         var b = 2
 
         aaa += 123
         b += 2
-        val notAligned2 = 1
+        var notAligned2 = 1
+
+        notAligned+=1
+        notAligned2+=1
     }
 }

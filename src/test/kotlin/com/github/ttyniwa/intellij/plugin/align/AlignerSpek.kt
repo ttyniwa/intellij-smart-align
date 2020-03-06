@@ -410,5 +410,24 @@ object AlignerSpek : Spek({
 
 
         }
+
+        group("first token") {
+            test("comma first style") {
+                val input = """
+                    0
+                        ,1
+                        ,23,12
+                        ,123,413,515
+                """.trimIndent()
+                val expected = """
+                    0
+                        , 1
+                        , 23 , 12
+                        , 123, 413, 515
+                """.trimIndent()
+
+                assertAlignEquals(input, 1, expected)
+            }
+        }
     }
 })
