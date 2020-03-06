@@ -1,8 +1,8 @@
 # Smart Align
 
-A IntelliJ plugin to provide better vertical alignment.
-Align your code by assignment(`=`, `+=`, `-=`, `*=`, `/=`), colon(`:`) and comma(`,`). also support trailing comment.
-You don't have to select what to be aligned, this plugin automatically figure it out.
+A IntelliJ plugin to provide better vertical alignment.  
+Align your code by assignment(`=`, `+=`, `-=`, `*=`, `/=`), colon(`:`) and comma(`,`). also support trailing comment.  
+You don't have to select what to be aligned, this plugin automatically figure it out.  
 
 ## Compatibility
 
@@ -10,7 +10,7 @@ IntelliJ IDEA, Android Studio. (and maybe other JetBrains families.)
 
 ## How to use
 
-Place your cursor at where you want your code to be aligned, and invoke the Align command via `Code` -> `Smart Align` or Press `Alt + Shift + -`.<br/>
+Place your cursor at where you want your code to be aligned, and invoke the Align command via `Code` -> `Smart Align` or Press `Alt + Shift + -`.  
 Then the code will be automatically aligned.
 
 ## Screenshots
