@@ -101,6 +101,8 @@ tasks {
         releaseAssets(buildDir.resolve("distributions").listFiles())
         overwrite(true)
         dryRun(false)
+        tagName(project.version.toString())
+        releaseName(project.version.toString())
     }
 }
 
