@@ -2,22 +2,6 @@ package com.github.ttyniwa.intellij.plugin.align.aligner
 
 import java.lang.IllegalArgumentException
 
-class ResultLines(lineSize: Int) {
-    private val lines = Array(lineSize) { "" }
-
-    operator fun get(index: Int) = lines[index]
-
-    operator fun set(index: Int, value: String) {
-        lines[index] = value
-    }
-
-    fun toList() = lines.toList()
-
-    fun findFurthestLength() = lines.map { it.length }.max()!!
-}
-
-data class PaddingInfo(val tokenType: TokenType, val leftPadding: Int, val rightPadding: Int, val isAlignLast: Boolean)
-
 object Aligner {
     //
     // settings
@@ -42,19 +26,19 @@ object Aligner {
             SimpleTokenLexer("}" , TokenType.Bracket),
             SimpleTokenLexer("(" , TokenType.Bracket),
             SimpleTokenLexer(")" , TokenType.Bracket),
+            SimpleTokenLexer("?" , TokenType.Comma),
             StringTokenLexer("'"),
             StringTokenLexer("\""),
             EndOfLineCommentTokenLexer("//"),
             BlockCommentTokenLexer("/*", "*/")
             // @formatter:on
     )
-    private val paddingInfos = listOf(
-            PaddingInfo(TokenType.Assign, 1, 1, true),
-            PaddingInfo(TokenType.Colon, 0, 1, false),
-            PaddingInfo(TokenType.Comma, 0, 1, false),
-            PaddingInfo(TokenType.EndOfLineComment, 1, 0, false)
-    )
-    private val alignTargetTokens = paddingInfos.map { it.tokenType }
+    private val alignInfos = AlignInfos(listOf(
+            AlignInfo(TokenType.Assign, 1, 1, true),
+            AlignInfo(TokenType.Colon, 0, 1, false),
+            AlignInfo(TokenType.Comma, 0, 1, false),
+            AlignInfo(TokenType.EndOfLineComment, 1, 0, false)
+    ))
 
     /**
      * Align surrounding [anchor] lines.
@@ -98,19 +82,17 @@ object Aligner {
         // option
         val isPaddingTokenRight = true
 
-        val paddingInfoMap = paddingInfos.associateBy { it.tokenType }
-
         //
         // 1. find the line that has no [alignTargetTokens] except EOL Comment, and mark it will not align.
         val isAlignIgnorableLine = lineRange.lines.map { line ->
-            line.indexOf(alignTargetTokens.minus(TokenType.EndOfLineComment), 0) == -1
+            line.indexOf(alignInfos.tokenTypesExceptComment, 0) == -1
         }
 
         //
         // 2. Remove whitespace around [alignTargetTokens]
         lineRange.lines
                 .filterIndexed { i, _ -> !isAlignIgnorableLine[i] }
-                .forEach { line -> line.trim(alignTargetTokens) }
+                .forEach { line -> line.trim(alignInfos.tokenTypes) }
 
         //
         // 3. Align
@@ -128,7 +110,7 @@ object Aligner {
                 if (isAlignIgnorableLine[i]) return@forEachIndexed
                 if (isCodeAlignCompleted[i]) return@forEachIndexed
 
-                val alignTokenIndex = line.indexOf(alignTargetTokens, alignedTokenIndexes[i] + 1)
+                val alignTokenIndex = line.indexOf(alignInfos.tokenTypes, alignedTokenIndexes[i] + 1)
                 val alignToken = line.tokens.getOrNull(alignTokenIndex)
 
                 if (alignToken != null) { // token found.
@@ -167,7 +149,7 @@ object Aligner {
                 val nextToken = line.tokens.getOrNull(alignedTokenIndexes[i] + 2)
 
                 val paddingNum = furthestLength - resultLines[i].length
-                val paddingInfo = paddingInfoMap[currentToken.type] ?: error("padding info not found.")
+                val paddingInfo = alignInfos.get(currentToken.type) ?: error("padding info not found.")
                 val numOfPaddingTokenRight = if (isPaddingTokenRight) {
                     longestOperatorLength!! - currentToken.text.length
                 } else {
@@ -180,7 +162,7 @@ object Aligner {
                 } else {
                     ""
                 }
-                if (currentToken.type in listOf(TokenType.Assign, TokenType.Arrow, TokenType.Comma, TokenType.Colon)) {
+                if (currentToken.type in alignInfos.tokenTypesExceptComment) {
                     resultLines[i] += leftPadding + currentToken.text
 
                     if (isLastTokenToAlign) {
@@ -200,7 +182,7 @@ object Aligner {
         //
         // 4. align EOL comment.
         val furthestLength = resultLines.findFurthestLength()
-        val paddingInfo = paddingInfoMap[TokenType.EndOfLineComment] ?: error("padding info not found.")
+        val paddingInfo = alignInfos.get(TokenType.EndOfLineComment) ?: error("padding info not found.")
         lineRange.lines.forEachIndexed { i, line ->
             if (isAlignIgnorableLine[i]) return@forEachIndexed
 
@@ -208,7 +190,7 @@ object Aligner {
             if (currentTokenIndex >= line.tokens.size) return@forEachIndexed
 
             // if no token to align found, don't align EOL Comment.
-            val isExistAlignTarget = line.isExists(alignTargetTokens.minus(TokenType.EndOfLineComment))
+            val isExistAlignTarget = line.isExists(alignInfos.tokenTypesExceptComment)
             if (!isExistAlignTarget) {
                 resultLines[i] += line.tokens[currentTokenIndex].text
                 return@forEachIndexed
@@ -244,13 +226,13 @@ object Aligner {
         val lexer = Lexer(tokenLexers)
         val anchorLine = Line(lexer.tokenize(rawLines[anchor]))
         val lineRange = LineRange(anchor, mutableListOf(anchorLine))
-        var commonTokens = anchorLine.intersect(alignTargetTokens).minus(TokenType.EndOfLineComment)
+        var commonTokens = anchorLine.intersect(alignInfos.tokenTypesExceptComment)
 
         // find start line to align.
         for (i in anchor - 1 downTo 0) {
             val line = Line(lexer.tokenize(rawLines[i]))
 
-            val ct = commonTokens.intersect(line.intersect(alignTargetTokens))
+            val ct = commonTokens.intersect(line.intersect(alignInfos.tokenTypes))
             if (ct.isEmpty()) {
                 break
             }
@@ -268,7 +250,7 @@ object Aligner {
         for (i in anchor + 1 until rawLines.size) {
             val line = Line(lexer.tokenize(rawLines[i]))
 
-            val ct = commonTokens.intersect(line.intersect(alignTargetTokens))
+            val ct = commonTokens.intersect(line.intersect(alignInfos.tokenTypes))
             if (ct.isEmpty()) {
                 break
             }
