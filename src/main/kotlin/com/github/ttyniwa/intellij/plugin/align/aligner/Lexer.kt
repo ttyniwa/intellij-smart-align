@@ -18,8 +18,8 @@ class Lexer(private val tokenLexers: List<TokenLexer>) {
             var nextSeek = 1
 
             val foundToken = tokenLexers
-                    .mapNotNull { lexer -> lexer.tokenize(text, pos) }
-                    .maxBy { token -> token.text.length }
+                .mapNotNull { lexer -> lexer.tokenize(text, pos) }
+                .maxByOrNull { token -> token.text.length }
             if (foundToken != null) {
                 if (isTokenTypeOfLastCharOther) {
                     tokens.add(Token(TokenType.Other, text.substring(lastTokenStartPos, pos)))

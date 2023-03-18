@@ -11,5 +11,5 @@ class ResultLines(lineSize: Int) {
 
     fun toList() = lines.toList()
 
-    fun findFurthestLength() = lines.map { it.length }.max()!!
+    fun findFurthestLength() = lines.map { it.length }.max()
 }

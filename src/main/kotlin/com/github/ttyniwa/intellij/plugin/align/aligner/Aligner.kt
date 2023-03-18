@@ -1,44 +1,44 @@
 package com.github.ttyniwa.intellij.plugin.align.aligner
 
-import java.lang.IllegalArgumentException
-
 object Aligner {
     //
     // settings
     private val tokenLexers: List<TokenLexer> = listOf(
-            // @formatter:off
-            SimpleTokenLexer("+=", TokenType.Assign),
-            SimpleTokenLexer("-=", TokenType.Assign),
-            SimpleTokenLexer("*=", TokenType.Assign),
-            SimpleTokenLexer("/=", TokenType.Assign),
-            SimpleTokenLexer("=" , TokenType.Assign),
-            SimpleTokenLexer("->", TokenType.Arrow),
-            SimpleTokenLexer("=>", TokenType.Comparator),
-            SimpleTokenLexer("=<", TokenType.Comparator),
-            SimpleTokenLexer(">=", TokenType.Comparator),
-            SimpleTokenLexer("<=", TokenType.Comparator),
-            SimpleTokenLexer("::", TokenType.Operator),
-            SimpleTokenLexer(":" , TokenType.Colon),
-            SimpleTokenLexer("," , TokenType.Comma),
-            SimpleTokenLexer("[" , TokenType.Bracket),
-            SimpleTokenLexer("]" , TokenType.Bracket),
-            SimpleTokenLexer("{" , TokenType.Bracket),
-            SimpleTokenLexer("}" , TokenType.Bracket),
-            SimpleTokenLexer("(" , TokenType.Bracket),
-            SimpleTokenLexer(")" , TokenType.Bracket),
-            SimpleTokenLexer("?" , TokenType.Comma),
-            StringTokenLexer("'"),
-            StringTokenLexer("\""),
-            EndOfLineCommentTokenLexer("//"),
-            BlockCommentTokenLexer("/*", "*/")
-            // @formatter:on
+        // @formatter:off
+        SimpleTokenLexer("+=", TokenType.Assign),
+        SimpleTokenLexer("-=", TokenType.Assign),
+        SimpleTokenLexer("*=", TokenType.Assign),
+        SimpleTokenLexer("/=", TokenType.Assign),
+        SimpleTokenLexer("=", TokenType.Assign),
+        SimpleTokenLexer("->", TokenType.Arrow),
+        SimpleTokenLexer("=>", TokenType.Comparator),
+        SimpleTokenLexer("=<", TokenType.Comparator),
+        SimpleTokenLexer(">=", TokenType.Comparator),
+        SimpleTokenLexer("<=", TokenType.Comparator),
+        SimpleTokenLexer("::", TokenType.Operator),
+        SimpleTokenLexer(":", TokenType.Colon),
+        SimpleTokenLexer(",", TokenType.Comma),
+        SimpleTokenLexer("[", TokenType.Bracket),
+        SimpleTokenLexer("]", TokenType.Bracket),
+        SimpleTokenLexer("{", TokenType.Bracket),
+        SimpleTokenLexer("}", TokenType.Bracket),
+        SimpleTokenLexer("(", TokenType.Bracket),
+        SimpleTokenLexer(")", TokenType.Bracket),
+        SimpleTokenLexer("?", TokenType.Comma),
+        StringTokenLexer("'"),
+        StringTokenLexer("\""),
+        EndOfLineCommentTokenLexer("//"),
+        BlockCommentTokenLexer("/*", "*/")
+        // @formatter:on
     )
-    private val alignInfos = AlignInfos(listOf(
+    private val alignInfos = AlignInfos(
+        listOf(
             AlignInfo(TokenType.Assign, 1, 1, true),
             AlignInfo(TokenType.Colon, 0, 1, false),
             AlignInfo(TokenType.Comma, 0, 1, false),
             AlignInfo(TokenType.EndOfLineComment, 1, 0, false)
-    ))
+        )
+    )
 
     /**
      * Align surrounding [anchor] lines.
@@ -70,12 +70,12 @@ object Aligner {
         val formattedLines = align(lineRange)
 
         return listOf(
-                rawLines.subList(0, lineRange.start),
-                formattedLines.toList(),
-                rawLines.subList(lineRange.end + 1, rawLines.size)
+            rawLines.subList(0, lineRange.start),
+            formattedLines.toList(),
+            rawLines.subList(lineRange.end + 1, rawLines.size)
         )
-                .flatten()
-                .joinToString(lineSeparator)
+            .flatten()
+            .joinToString(lineSeparator)
     }
 
     private fun align(lineRange: LineRange): ResultLines {
@@ -91,8 +91,8 @@ object Aligner {
         //
         // 2. Remove whitespace around [alignTargetTokens]
         lineRange.lines
-                .filterIndexed { i, _ -> !isAlignIgnorableLine[i] }
-                .forEach { line -> line.trim(alignInfos.tokenTypes) }
+            .filterIndexed { i, _ -> !isAlignIgnorableLine[i] }
+            .forEach { line -> line.trim(alignInfos.tokenTypes) }
 
         //
         // 3. Align
@@ -129,15 +129,15 @@ object Aligner {
             //
             // find furthest line length
             val furthestLength = (0 until lineRange.lines.size)
-                    .filter { !isAlignIgnorableLine[it] }
-                    .map { resultLines[it].length }
-                    .max() ?: 0
+                .filter { !isAlignIgnorableLine[it] }
+                .map { resultLines[it].length }
+                .maxOrNull() ?: 0
 
             val longestOperatorLength = lineRange.lines
-                    .mapIndexed { i, line -> line.tokens.getOrNull(alignedTokenIndexes[i] + 1)?.text?.length }
-                    .filterIndexed { i, _ -> !isCodeAlignCompleted[i] && !isAlignIgnorableLine[i] }
-                    .filterNotNull()
-                    .max()
+                .mapIndexed { i, line -> line.tokens.getOrNull(alignedTokenIndexes[i] + 1)?.text?.length }
+                .filterIndexed { i, _ -> !isCodeAlignCompleted[i] && !isAlignIgnorableLine[i] }
+                .filterNotNull()
+                .maxOrNull()
 
             //
             // align token

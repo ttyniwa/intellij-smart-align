@@ -26,7 +26,7 @@ class PluginConfig : PersistentStateComponent<Config> {
 
     companion object {
         fun getInstance(project: Project): PluginConfig {
-            return ServiceManager.getService(project, PluginConfig::class.java)
+            return project.getService(PluginConfig::class.java)
         }
     }
 }

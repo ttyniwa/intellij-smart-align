@@ -1,12 +1,12 @@
 package com.github.ttyniwa.intellij.plugin.align
 
 import com.github.ttyniwa.intellij.plugin.align.aligner.Aligner
+import io.kotest.core.spec.style.DescribeSpec
 import org.assertj.core.api.Assertions.assertThat
-import org.spekframework.spek2.Spek
 
-object AlignerSpek : Spek({
+object AlignerSpek : DescribeSpec({
 
-    group(".align(input)") {
+    describe(".align(input)") {
 
         fun assertAlignEquals(input: String, lineNum: Int, expected: String) {
             val actual = Aligner.align(input, lineNum)
@@ -15,10 +15,10 @@ object AlignerSpek : Spek({
 
         fun assertNotAlign(input: String, lineNum: Int) = assertAlignEquals(input, lineNum, input)
 
-        group("detect lines to align") {
+        describe("detect lines to align") {
 
             // TODO pass this test
-//            test("align only same bracket structure lines.") {
+//            it("align only same bracket structure lines.") {
 //                val input = """
 //                    var index = 0;
 //                    j = 1;
@@ -33,7 +33,7 @@ object AlignerSpek : Spek({
 //                assertAlignEquals(input, 0, expected)
 //            }
 
-            test("align only continuous lines") {
+            it("align only continuous lines") {
                 val input = """
                     var noalign          = 0;
                     
@@ -54,7 +54,7 @@ object AlignerSpek : Spek({
                 assertAlignEquals(input, 3, expected)
             }
 
-            test("only align line which has common token") {
+            it("only align line which has common token") {
                 val input: String = """
                     listOf(1,2,3)
                     let i = 1
@@ -74,8 +74,8 @@ object AlignerSpek : Spek({
 
         }
 
-        group("can align") {
-            test("two lines") {
+        describe("can align") {
+            it("two lines") {
                 val input = """
                     var index = 0;
                     j = 1;
@@ -89,7 +89,7 @@ object AlignerSpek : Spek({
             }
 
             // TODO pass this test
-//            test("assignment takes precedence over left hand comma") {
+//            it("assignment takes precedence over left hand comma") {
 //                val input = """
 //                    var index = 0;
 //                    i, j = 1;
@@ -102,7 +102,7 @@ object AlignerSpek : Spek({
 //                assertAlignEquals(input, 0, expected)
 //            }
 
-            test("don't align last comma.") {
+            it("don't align last comma.") {
                 val input = """
                     listOf(
                         listOf(1,"hello",2),
@@ -119,7 +119,7 @@ object AlignerSpek : Spek({
                 assertAlignEquals(input, 1, expected)
             }
 
-            test("two white spaced lines") {
+            it("two white spaced lines") {
                 val input = """
                     var index          = 0;
                     j      = 1;
@@ -132,7 +132,7 @@ object AlignerSpek : Spek({
                 assertAlignEquals(input, 1, expected)
             }
 
-            test("no delimiters at specified line") {
+            it("no delimiters at specified line") {
                 val input = """
                     var index          = 0;
                     j      = 1;
@@ -142,7 +142,7 @@ object AlignerSpek : Spek({
                 assertNotAlign(input, 2)
             }
 
-            test("enforces 1 space after delimiter") {
+            it("enforces 1 space after delimiter") {
                 val input = """
                     var index=0;
                     j=1;
@@ -155,7 +155,7 @@ object AlignerSpek : Spek({
                 assertAlignEquals(input, 0, expected)
             }
 
-            test("align any assignment") {
+            it("align any assignment") {
                 val inputTemplate = """
                     var index{{OPERATOR}}0;
                     j {{OPERATOR}}1;
@@ -173,7 +173,7 @@ object AlignerSpek : Spek({
                 }
             }
 
-            test("multiple delimiters in one line") {
+            it("multiple delimiters in one line") {
                 val input = """
                     var index = 123 += 123;
                     j = 1=1234;
@@ -182,11 +182,10 @@ object AlignerSpek : Spek({
                     var index = 123 += 123;
                     j         = 1    = 1234;
                 """.trimIndent()
-
                 assertAlignEquals(input, 0, expected)
             }
 
-            test("align colon") {
+            it("align colon") {
                 val input: String = """
                     tagName: 'tile-hero'
                     Names: ['hero']
@@ -199,7 +198,7 @@ object AlignerSpek : Spek({
                 assertAlignEquals(input, 0, expected)
             }
 
-            test("json") {
+            it("json") {
                 val input: String = """
                     {
                       "HOME_HERO_AREA" : "home__hero-area",
@@ -216,14 +215,14 @@ object AlignerSpek : Spek({
             }
         }
 
-        group("ignore lines") {
+        describe("ignore lines") {
 
-            test("don't have delimiters") {
+            it("don't have delimiters") {
                 val input = "(0;i<1;++i){"
                 assertNotAlign(input, 0)
             }
 
-            test("contain with css state") {
+            it("contain with css state") {
                 val input = """
                     .dev-summary.tile::hover .dev-cover-image {}
                     .live-summary.tile::hover .dev-cover-image {
@@ -234,7 +233,7 @@ object AlignerSpek : Spek({
             }
 
             // FIXME
-//            test("starts with css ampersand selector") {
+//            it("starts with css ampersand selector") {
 //                val input: String = """
 //                    .someclass {
 //                      &:not(.somethingElse) {
@@ -244,7 +243,7 @@ object AlignerSpek : Spek({
 //                assertNotAlign(input, 1)
 //            }
 
-            test("contains '=>' function syntax") {
+            it("contains '=>' function syntax") {
                 val text: String = """
                       some.then((response)=>{
                         let data = response.data;
@@ -252,7 +251,7 @@ object AlignerSpek : Spek({
                 assertNotAlign(text, 0)
             }
 
-            test("contains '->' function syntax") {
+            it("contains '->' function syntax") {
                 val text: String = """
                       some.then((response)->{
                         let data = response.data;
@@ -260,7 +259,7 @@ object AlignerSpek : Spek({
                 assertNotAlign(text, 0)
             }
 
-            test("end with delimiter") {
+            it("end with delimiter") {
                 val text: String = """
                     switch (true) {
                       case false:
@@ -271,8 +270,8 @@ object AlignerSpek : Spek({
             }
         }
 
-        group("token in string literal") {
-            test("ignore first colon in quote") {
+        describe("token in string literal") {
+            it("ignore first colon in quote") {
                 val input: String = """
                     mp('my,key', 'my,other')
                     mp('my,other', 'my,other')
@@ -285,7 +284,7 @@ object AlignerSpek : Spek({
                 assertAlignEquals(input, 0, expected)
             }
 
-            test("ignore lines that have assignment in opened quotes") {
+            it("ignore lines that have assignment in opened quotes") {
                 val input: String = """
                     mp("my=other
                     var mpItem = {
@@ -299,8 +298,8 @@ object AlignerSpek : Spek({
             }
         }
 
-        group("comment") {
-            test("start with eol comment doesn't aligned") {
+        describe("comment") {
+            it("start with eol comment doesn't aligned") {
                 val template: String = """
                     {{KEYWORD}}let i = 1;
                     let jj=0;
@@ -313,7 +312,7 @@ object AlignerSpek : Spek({
                 }
             }
 
-            test("don't align comment only line") {
+            it("don't align comment only line") {
                 val input = """
                     // @formatter:off
                     var index = 0; // comment1
@@ -330,7 +329,7 @@ object AlignerSpek : Spek({
                 assertAlignEquals(input, 1, expected)
             }
 
-            test("align comments in same column") {
+            it("align comments in same column") {
                 val input = """
                     var index = 0; // comment1
                     j = 1000; // comment2
@@ -343,7 +342,7 @@ object AlignerSpek : Spek({
                 assertAlignEquals(input, 0, expected)
             }
 
-            test("align comments in same column") {
+            it("align comments in same column") {
                 val input = """
                     var index = 0; // comment1
                     j = 1000; // comment2
@@ -359,8 +358,8 @@ object AlignerSpek : Spek({
             }
         }
 
-        group("align selected text") {
-            test("align range is correct") {
+        describe("align selected text") {
+            it("align range is correct") {
                 val input = """
                     noalign = 1;
                     var index = 0; // comment1
@@ -380,11 +379,11 @@ object AlignerSpek : Spek({
                     noalign = 1;
                 """.trimIndent()
 
-                val actual = Aligner.align(input, IntRange(1,5))
+                val actual = Aligner.align(input, IntRange(1, 5))
                 assertThat(actual).isEqualTo(expected)
             }
 
-            test("don't align comment only line") {
+            it("don't align comment only line") {
                 val input = """
                     noalign = 1;
                     var index = 0; // comment1
@@ -404,15 +403,15 @@ object AlignerSpek : Spek({
                     noalign = 1;
                 """.trimIndent()
 
-                val actual = Aligner.align(input, IntRange(1,5))
+                val actual = Aligner.align(input, IntRange(1, 5))
                 assertThat(actual).isEqualTo(expected)
             }
 
 
         }
 
-        group("first token") {
-            test("comma first style") {
+        describe("first token") {
+            it("comma first style") {
                 val input = """
                     0
                         ,1

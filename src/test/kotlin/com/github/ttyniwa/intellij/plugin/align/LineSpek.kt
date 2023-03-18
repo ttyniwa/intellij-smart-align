@@ -3,61 +3,69 @@ package com.github.ttyniwa.intellij.plugin.align
 import com.github.ttyniwa.intellij.plugin.align.aligner.Line
 import com.github.ttyniwa.intellij.plugin.align.aligner.Token
 import com.github.ttyniwa.intellij.plugin.align.aligner.TokenType
+import io.kotest.core.spec.style.DescribeSpec
 import org.assertj.core.api.Assertions.assertThat
-import org.spekframework.spek2.Spek
 
-object LineSpek : Spek({
+object LineSpek : DescribeSpec({
 
-    group(".trim()") {
+    describe(".trim()") {
         val data = listOf(
-                // space around token.
-                // @formatter:off
-                Pair(listOf(
-                        Token(TokenType.Other, " space "),
-                        Token(TokenType.Assign, "="),
-                        Token(TokenType.Other, " space ")
+            // space around token.
+            // @formatter:off
+            Pair(
+                listOf(
+                    Token(TokenType.Other, " space "),
+                    Token(TokenType.Assign, "="),
+                    Token(TokenType.Other, " space ")
                 ), listOf(
-                        Token(TokenType.Other, " space"),
-                        Token(TokenType.Assign, "="),
-                        Token(TokenType.Other, "space ")
-                )),
-                // no space around token.
-                Pair(listOf(
-                        Token(TokenType.Other, " space"),
-                        Token(TokenType.Assign, "="),
-                        Token(TokenType.Other, "space ")
+                    Token(TokenType.Other, " space"),
+                    Token(TokenType.Assign, "="),
+                    Token(TokenType.Other, "space ")
+                )
+            ),
+            // no space around token.
+            Pair(
+                listOf(
+                    Token(TokenType.Other, " space"),
+                    Token(TokenType.Assign, "="),
+                    Token(TokenType.Other, "space ")
                 ), listOf(
-                        Token(TokenType.Other, " space"),
-                        Token(TokenType.Assign, "="),
-                        Token(TokenType.Other, "space ")
-                )),
-                // every tokens.
-                Pair(listOf(
-                        Token(TokenType.Other, " space "),
-                        Token(TokenType.Assign, "="),
-                        Token(TokenType.Other, " space "),
-                        Token(TokenType.Assign, "="),
-                        Token(TokenType.Other, " space ")
+                    Token(TokenType.Other, " space"),
+                    Token(TokenType.Assign, "="),
+                    Token(TokenType.Other, "space ")
+                )
+            ),
+            // every tokens.
+            Pair(
+                listOf(
+                    Token(TokenType.Other, " space "),
+                    Token(TokenType.Assign, "="),
+                    Token(TokenType.Other, " space "),
+                    Token(TokenType.Assign, "="),
+                    Token(TokenType.Other, " space ")
                 ), listOf(
-                        Token(TokenType.Other, " space"),
-                        Token(TokenType.Assign, "="),
-                        Token(TokenType.Other, "space"),
-                        Token(TokenType.Assign, "="),
-                        Token(TokenType.Other, "space ")
-                )),
-                // continuous tokens.
-                Pair(listOf(
-                        Token(TokenType.Other, " space "),
-                        Token(TokenType.Assign, "="),
-                        Token(TokenType.Assign, "="),
-                        Token(TokenType.Other, " space ")
+                    Token(TokenType.Other, " space"),
+                    Token(TokenType.Assign, "="),
+                    Token(TokenType.Other, "space"),
+                    Token(TokenType.Assign, "="),
+                    Token(TokenType.Other, "space ")
+                )
+            ),
+            // continuous tokens.
+            Pair(
+                listOf(
+                    Token(TokenType.Other, " space "),
+                    Token(TokenType.Assign, "="),
+                    Token(TokenType.Assign, "="),
+                    Token(TokenType.Other, " space ")
                 ), listOf(
-                        Token(TokenType.Other, " space"),
-                        Token(TokenType.Assign, "="),
-                        Token(TokenType.Assign, "="),
-                        Token(TokenType.Other, "space ")
-                ))
-                // @formatter:on
+                    Token(TokenType.Other, " space"),
+                    Token(TokenType.Assign, "="),
+                    Token(TokenType.Assign, "="),
+                    Token(TokenType.Other, "space ")
+                )
+            )
+            // @formatter:on
         )
 
         data.forEach {
@@ -65,41 +73,44 @@ object LineSpek : Spek({
             val expected = Line(it.second)
             input.trim(listOf(TokenType.Assign))
 
-            test("can trim $input") {
+            it("can trim $input") {
                 assertThat(input).isEqualTo(expected)
             }
         }
     }
 
-    group(".intersect()") {
+    describe(".intersect()") {
         val data = listOf(
-                // @formatter:off
-                Triple(listOf(
-                        Token(TokenType.Other, ""),
-                        Token(TokenType.Assign, ""),
-                        Token(TokenType.Colon, "")
+            // @formatter:off
+            Triple(
+                listOf(
+                    Token(TokenType.Other, ""),
+                    Token(TokenType.Assign, ""),
+                    Token(TokenType.Colon, "")
                 ), listOf(
-                        TokenType.Other
+                    TokenType.Other
                 ),
-                        setOf(TokenType.Other)
-                ),
-                Triple(listOf(
-                        Token(TokenType.Other, ""),
-                        Token(TokenType.Other, "")
+                setOf(TokenType.Other)
+            ),
+            Triple(
+                listOf(
+                    Token(TokenType.Other, ""),
+                    Token(TokenType.Other, "")
                 ), listOf(
-                        TokenType.Other
+                    TokenType.Other
                 ),
-                        setOf(TokenType.Other)
-                ),
-                Triple(listOf(
-                        Token(TokenType.Other, ""),
-                        Token(TokenType.Assign, "")
+                setOf(TokenType.Other)
+            ),
+            Triple(
+                listOf(
+                    Token(TokenType.Other, ""),
+                    Token(TokenType.Assign, "")
                 ), listOf(
-                        TokenType.Colon
+                    TokenType.Colon
                 ),
-                        setOf()
-                )
-                // @formatter:on
+                setOf()
+            )
+            // @formatter:on
         )
 
         data.forEach {
@@ -107,69 +118,74 @@ object LineSpek : Spek({
             val result = input.intersect(it.second)
             val expected = it.third
 
-            test("intersect ${it.second} and $input") {
+            it("intersect ${it.second} and $input") {
                 assertThat(result).isEqualTo(expected)
             }
         }
     }
 
-    group(".indexOf()") {
-        data class Data(val tokens: List<Token>, val findTokenTypes: List<TokenType>, val startIndex: Int, val expected: Int)
+    describe(".indexOf()") {
+        data class Data(
+            val tokens: List<Token>,
+            val findTokenTypes: List<TokenType>,
+            val startIndex: Int,
+            val expected: Int
+        )
 
         val data = listOf(
-                // @formatter:off
-                Data(
-                        listOf(
-                                Token(TokenType.Other, ""),
-                                Token(TokenType.Assign, ""),
-                                Token(TokenType.Colon, "")
-                        ),
-                        listOf(TokenType.Other),
-                        0,
-                        0
+            // @formatter:off
+            Data(
+                listOf(
+                    Token(TokenType.Other, ""),
+                    Token(TokenType.Assign, ""),
+                    Token(TokenType.Colon, "")
                 ),
-                Data(
-                        listOf(
-                                Token(TokenType.Other, ""),
-                                Token(TokenType.Assign, ""),
-                                Token(TokenType.Colon, "")
-                        ),
-                        listOf(TokenType.Colon),
-                        0,
-                        2
+                listOf(TokenType.Other),
+                0,
+                0
+            ),
+            Data(
+                listOf(
+                    Token(TokenType.Other, ""),
+                    Token(TokenType.Assign, ""),
+                    Token(TokenType.Colon, "")
                 ),
-                Data(
-                        listOf(
-                                Token(TokenType.Other, ""),
-                                Token(TokenType.Other, ""),
-                                Token(TokenType.Other, "")
-                        ),
-                        listOf(TokenType.Other),
-                        1,
-                        1
+                listOf(TokenType.Colon),
+                0,
+                2
+            ),
+            Data(
+                listOf(
+                    Token(TokenType.Other, ""),
+                    Token(TokenType.Other, ""),
+                    Token(TokenType.Other, "")
                 ),
-                Data(
-                        listOf(
-                                Token(TokenType.Other, ""),
-                                Token(TokenType.Assign, ""),
-                                Token(TokenType.Colon, "")
-                        ),
-                        listOf(TokenType.Colon, TokenType.Assign),
-                        0,
-                        1
+                listOf(TokenType.Other),
+                1,
+                1
+            ),
+            Data(
+                listOf(
+                    Token(TokenType.Other, ""),
+                    Token(TokenType.Assign, ""),
+                    Token(TokenType.Colon, "")
                 ),
-                // not found.
-                Data(
-                        listOf(
-                                Token(TokenType.Other, ""),
-                                Token(TokenType.Assign, ""),
-                                Token(TokenType.Colon, "")
-                        ),
-                        listOf(TokenType.Other),
-                        1,
-                        -1
-                )
-                // @formatter:on
+                listOf(TokenType.Colon, TokenType.Assign),
+                0,
+                1
+            ),
+            // not found.
+            Data(
+                listOf(
+                    Token(TokenType.Other, ""),
+                    Token(TokenType.Assign, ""),
+                    Token(TokenType.Colon, "")
+                ),
+                listOf(TokenType.Other),
+                1,
+                -1
+            )
+            // @formatter:on
         )
 
         data.forEach {
@@ -177,7 +193,7 @@ object LineSpek : Spek({
             val result = input.indexOf(it.findTokenTypes, it.startIndex)
             val expected = it.expected
 
-            test("indexOf(${it.findTokenTypes}, ${it.startIndex})") {
+            it("indexOf(${it.findTokenTypes}, ${it.startIndex})") {
                 assertThat(result).isEqualTo(expected)
             }
         }
